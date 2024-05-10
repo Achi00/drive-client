@@ -7,7 +7,8 @@ export const getSession = async () => {
   } catch (error: any) {
     if (error.response && error.response.status === 401) {
       // User is not authenticated
-      throw new Error("You are not authenticated");
+      // window.location.href = "/login";
+      throw new Error("You are not authenticated,\nYou can't access this page");
     }
     console.error("Error fetching session:", error);
     return null;

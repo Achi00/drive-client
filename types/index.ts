@@ -18,6 +18,7 @@ export interface fileTypes {
   parent: string;
   type: string;
   uniqueName: string;
+  content?: string;
   isPublic: boolean;
   createdAt: string;
   __v: number;
