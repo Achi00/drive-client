@@ -10,6 +10,7 @@ export interface UserProps {
 
 export interface fileTypes {
   _id: string;
+  googleDocId: string;
   user: string;
   name: string;
   size: number;

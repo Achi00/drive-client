@@ -6,10 +6,17 @@ import { Button } from "@/components/ui/button";
 import api from "../api/axios";
 import { fileTypes, userTypes } from "@/types";
 import Loading from "@/components/Loading";
-import Link from "next/link";
-import { Download, FolderIcon, SearchIcon, UploadIcon } from "lucide-react";
+import toast, { Toaster } from "react-hot-toast";
+import {
+  Download,
+  FileIcon,
+  FolderIcon,
+  Lock,
+  SearchIcon,
+  UploadIcon,
+} from "lucide-react";
 import Sidebar from "@/components/Sidebar";
-import FilePreviewModal from "@/components/FilePreview";
+import Docs from "../../public/google-docs.png";
 import {
   Dialog,
   DialogContent,
@@ -19,6 +26,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import Image from "next/image";
+import CustomToast from "@/components/CustomToast";
 
 const Dashboard = () => {
   const [user, setUser] = useState<userTypes>({
@@ -60,7 +69,6 @@ const Dashboard = () => {
         });
         const fileContent = response.data;
         setSelectedFile({ ...file, content: fileContent });
-        console.log(response);
       } catch (error) {
         console.error("Error fetching file content:", error);
         setSelectedFile(file);
@@ -74,6 +82,49 @@ const Dashboard = () => {
     setSelectedFile(null);
   };
 
+  // google docs edit
+  const handleEditInDocs = async () => {
+    if (
+      selectedFile &&
+      selectedFile.type === "file" &&
+      selectedFile.fileType === "text/plain"
+    ) {
+      try {
+        const response = await api.post(
+          `/v1/files/files/${selectedFile._id}/edit`
+        );
+        const { editUrl } = response.data;
+        window.open(editUrl, "_blank");
+      } catch (error) {
+        console.error("Error editing in Google Docs:", error);
+        toast.custom((t) => (
+          <CustomToast
+            message="Unable to open the file in Google Docs. Please try again later."
+            t={t}
+          />
+        ));
+      }
+    }
+  };
+  // after user finishes editing in google docs save changes
+  useEffect(() => {
+    const handleTabClose = async () => {
+      if (selectedFile && selectedFile.googleDocId) {
+        try {
+          await api.put(`/v1/files/files/${selectedFile._id}/content`);
+        } catch (error) {
+          console.error("Error saving file content:", error);
+        }
+      }
+    };
+
+    window.addEventListener("beforeunload", handleTabClose);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleTabClose);
+    };
+  }, [selectedFile]);
+
   if (!user) {
     return <Loading />;
   }
@@ -84,6 +135,7 @@ const Dashboard = () => {
 
   return (
     <div>
+      <Toaster />
       <div className="flex h-screen w-full">
         <Sidebar user={user} />
         <div className="flex-1 p-6">
@@ -131,16 +183,31 @@ const Dashboard = () => {
         </div>
       </div>
       <Dialog open={selectedFile !== null} onOpenChange={handleCloseModal}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px]">
           <DialogHeader>
             <DialogTitle>Content Preview</DialogTitle>
+
             <DialogDescription>{selectedFile?.name}</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             {selectedFile && (
               <>
                 {selectedFile.fileType === "text/plain" && (
-                  <pre>{selectedFile.content || "Loading..."}</pre>
+                  <pre>
+                    {selectedFile.content || (
+                      <div className="flex flex-col items-center justify-center h-[20vh]">
+                        <div className="bg-gray-100 rounded-full p-4 dark:bg-gray-800">
+                          <FileIcon className="h-12 w-12 text-gray-500 dark:text-gray-400" />
+                        </div>
+                        <h3 className="mt-4 text-xl font-semibold text-gray-900 dark:text-gray-50">
+                          No content available
+                        </h3>
+                        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                          There is currently no content to display.
+                        </p>
+                      </div>
+                    )}
+                  </pre>
                 )}
                 {(selectedFile.fileType === "image/png" ||
                   selectedFile.fileType === "image/jpeg" ||
@@ -153,11 +220,28 @@ const Dashboard = () => {
               </>
             )}
           </div>
-          <DialogFooter>
-            <Button type="submit">
-              <Download className="mr-2 h-4 w-4" />
-              Download
-            </Button>
+          <DialogFooter className="sm:justify-between  items-center">
+            <div>
+              {selectedFile?.isPublic === false && (
+                <div className="flex items-center gap-1">
+                  <Lock /> Private File
+                </div>
+              )}
+            </div>
+            <div className="flex gap-2 items-center">
+              <Button type="submit">
+                <Download className="mr-2 h-4 w-4" />
+                Download
+              </Button>
+              <Button
+                onClick={handleEditInDocs}
+                variant="outline"
+                className="flex items-center gap-2  hover:bg-[#3367D6] text-black border-[#4285F4] hover:border-[#3367D6] transition-colors shadow-lg rounded-md"
+              >
+                <Image src={Docs} alt="Edit In Docs" width={24} height={24} />
+                Edit In Docs
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
