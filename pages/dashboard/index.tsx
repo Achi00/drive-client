@@ -8,9 +8,11 @@ import { fileTypes, userTypes } from "@/types";
 import Loading from "@/components/Loading";
 import toast, { Toaster } from "react-hot-toast";
 import {
+  CheckCheck,
   Download,
   FileIcon,
   FolderIcon,
+  Loader2,
   Lock,
   SearchIcon,
   UploadIcon,
@@ -24,10 +26,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import Image from "next/image";
 import CustomToast from "@/components/CustomToast";
+import { formatBytes } from "@/utils/formatBytes";
 
 const Dashboard = () => {
   const [user, setUser] = useState<userTypes>({
@@ -38,6 +40,8 @@ const Dashboard = () => {
   const [files, setFiles] = useState<fileTypes[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<fileTypes | null>(null);
+  const [docsTab, setDocsTab] = useState<Window | null>(null);
+  const [updateContentLoad, setUpdateContentLoad] = useState(false);
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -50,7 +54,6 @@ const Dashboard = () => {
         setLoading(true);
         const response = await api.get("/v1/files/getfiles");
         setFiles(response.data);
-        console.log(response.data);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching files:", error);
@@ -90,12 +93,16 @@ const Dashboard = () => {
       selectedFile.fileType === "text/plain"
     ) {
       try {
+        toast.loading("Redirecting to Google Docs...");
         const response = await api.post(
           `/v1/files/files/${selectedFile._id}/edit`
         );
         const { editUrl } = response.data;
-        window.open(editUrl, "_blank");
+        const tab = window.open(editUrl, "_blank");
+        setDocsTab(tab);
+        toast.dismiss();
       } catch (error) {
+        toast.dismiss();
         console.error("Error editing in Google Docs:", error);
         toast.custom((t) => (
           <CustomToast
@@ -106,30 +113,44 @@ const Dashboard = () => {
       }
     }
   };
-  // after user finishes editing in google docs save changes
+
+  // periodically check if the Google Docs tab is still open
   useEffect(() => {
-    const handleTabClose = async () => {
-      if (selectedFile && selectedFile.googleDocId) {
+    const intervalId = setInterval(async () => {
+      if (docsTab && docsTab.closed) {
         try {
-          await api.put(`/v1/files/files/${selectedFile._id}/content`);
+          setUpdateContentLoad(true);
+          console.log("making put request");
+          await api.put(`/v1/files/files/${selectedFile?._id}/content`);
+          console.log("getting content");
+          const response = await api.get(
+            `/v1/files/files/${selectedFile?._id}/content`
+          );
+          const updatedContent = response.data;
+          setSelectedFile((prevFile) => {
+            if (prevFile) {
+              return {
+                ...prevFile,
+                content: updatedContent,
+              };
+            }
+            return null;
+          });
+          console.log("done");
+          setDocsTab(null);
+          setUpdateContentLoad(false);
         } catch (error) {
           console.error("Error saving file content:", error);
         }
       }
-    };
-
-    window.addEventListener("beforeunload", handleTabClose);
+    }, 1000);
 
     return () => {
-      window.removeEventListener("beforeunload", handleTabClose);
+      clearInterval(intervalId);
     };
-  }, [selectedFile]);
+  }, [docsTab, selectedFile]);
 
-  if (!user) {
-    return <Loading />;
-  }
-
-  if (loading) {
+  if (!user || loading) {
     return <Loading />;
   }
 
@@ -186,14 +207,20 @@ const Dashboard = () => {
         <DialogContent className="sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px]">
           <DialogHeader>
             <DialogTitle>Content Preview</DialogTitle>
-
-            <DialogDescription>{selectedFile?.name}</DialogDescription>
+            <DialogDescription>
+              {selectedFile?.name} -{" "}
+              <span className="font-bold">
+                {selectedFile
+                  ? formatBytes(selectedFile.size)
+                  : "No file selected"}
+              </span>
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             {selectedFile && (
               <>
                 {selectedFile.fileType === "text/plain" && (
-                  <pre>
+                  <pre className="border rounded-md p-2">
                     {selectedFile.content || (
                       <div className="flex flex-col items-center justify-center h-[20vh]">
                         <div className="bg-gray-100 rounded-full p-4 dark:bg-gray-800">
@@ -221,6 +248,17 @@ const Dashboard = () => {
             )}
           </div>
           <DialogFooter className="sm:justify-between  items-center">
+            {updateContentLoad ? (
+              <div className="text-gary-500 flex items-center text-sm">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Updating content...
+              </div>
+            ) : (
+              <div className="text-gary-500 flex items-center gap-1 text-sm">
+                <CheckCheck />
+                <p>This file is up to date</p>
+              </div>
+            )}
             <div>
               {selectedFile?.isPublic === false && (
                 <div className="flex items-center gap-1">

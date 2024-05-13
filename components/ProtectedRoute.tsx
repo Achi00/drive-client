@@ -2,6 +2,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { getSession } from "@/pages/api/auth/auth";
+import Loading from "./Loading";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -29,7 +30,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }, []);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   return children;
