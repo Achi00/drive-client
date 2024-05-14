@@ -14,6 +14,7 @@ import {
   FolderIcon,
   Loader2,
   Lock,
+  RefreshCcw,
   SearchIcon,
   UploadIcon,
 } from "lucide-react";
@@ -30,6 +31,7 @@ import {
 import Image from "next/image";
 import CustomToast from "@/components/CustomToast";
 import { formatBytes } from "@/utils/formatBytes";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Dashboard = () => {
   const [user, setUser] = useState<userTypes>({
@@ -42,6 +44,7 @@ const Dashboard = () => {
   const [selectedFile, setSelectedFile] = useState<fileTypes | null>(null);
   const [docsTab, setDocsTab] = useState<Window | null>(null);
   const [updateContentLoad, setUpdateContentLoad] = useState(false);
+  const [isPending, setIsPending] = useState(false);
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -93,6 +96,7 @@ const Dashboard = () => {
       selectedFile.fileType === "text/plain"
     ) {
       try {
+        setIsPending(true);
         toast.loading("Redirecting to Google Docs...");
         const response = await api.post(
           `/v1/files/files/${selectedFile._id}/edit`
@@ -137,6 +141,7 @@ const Dashboard = () => {
             return null;
           });
           console.log("done");
+          setIsPending(false);
           setDocsTab(null);
           setUpdateContentLoad(false);
         } catch (error) {
@@ -221,19 +226,21 @@ const Dashboard = () => {
               <>
                 {selectedFile.fileType === "text/plain" && (
                   <pre className="border rounded-md p-2">
-                    {selectedFile.content || (
-                      <div className="flex flex-col items-center justify-center h-[20vh]">
-                        <div className="bg-gray-100 rounded-full p-4 dark:bg-gray-800">
-                          <FileIcon className="h-12 w-12 text-gray-500 dark:text-gray-400" />
+                    <ScrollArea className="h-72 w-full p-2 rounded-md border">
+                      {selectedFile.content || (
+                        <div className="flex flex-col items-center justify-center h-[20vh]">
+                          <div className="bg-gray-100 rounded-full p-4 dark:bg-gray-800">
+                            <FileIcon className="h-12 w-12 text-gray-500 dark:text-gray-400" />
+                          </div>
+                          <h3 className="mt-4 text-xl font-semibold text-gray-900 dark:text-gray-50">
+                            No content available
+                          </h3>
+                          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                            There is currently no content to display.
+                          </p>
                         </div>
-                        <h3 className="mt-4 text-xl font-semibold text-gray-900 dark:text-gray-50">
-                          No content available
-                        </h3>
-                        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                          There is currently no content to display.
-                        </p>
-                      </div>
-                    )}
+                      )}
+                    </ScrollArea>
                   </pre>
                 )}
                 {(selectedFile.fileType === "image/png" ||
@@ -248,15 +255,28 @@ const Dashboard = () => {
             )}
           </div>
           <DialogFooter className="sm:justify-between  items-center">
-            {updateContentLoad ? (
-              <div className="text-gary-500 flex items-center text-sm">
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Updating content...
-              </div>
-            ) : (
+            {!isPending &&
+              (updateContentLoad ? (
+                <div className="text-gray-500 flex items-center text-sm">
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Updating content...
+                </div>
+              ) : (
+                <div className="text-gray-500 flex items-center gap-1 text-sm">
+                  <CheckCheck />
+                  <p>This file is up to date</p>
+                </div>
+              ))}
+
+            {isPending && (
               <div className="text-gary-500 flex items-center gap-1 text-sm">
-                <CheckCheck />
-                <p>This file is up to date</p>
+                <RefreshCcw className="mr-2 h-4 w-4 animate-spin scale-[-1]" />
+                <div className="flex flex-col">
+                  <p>Pending...</p>
+                  <p className="text-gray-400">
+                    Content will be updated after you close google docs page
+                  </p>
+                </div>
               </div>
             )}
             <div>

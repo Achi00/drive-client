@@ -1,7 +1,7 @@
 // components/ProtectedRoute.js
 import { ReactNode, useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { getSession } from "@/pages/api/auth/auth";
+import { getSession, logout } from "@/pages/api/auth/auth";
 import Loading from "./Loading";
 
 interface ProtectedRouteProps {
@@ -18,11 +18,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         const userSession = await getSession();
         if (!userSession) {
           router.push("/login?error=NotAuthenticated");
+          logout();
         } else {
           setIsLoading(false);
         }
       } catch (error: any) {
         router.push(`/login?error=${encodeURIComponent(error.message)}`);
+        logout();
       }
     };
 
