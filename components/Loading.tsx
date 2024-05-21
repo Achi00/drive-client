@@ -1,9 +1,11 @@
-export default function Loading() {
+export default function Loading({ content }: { content?: string }) {
   return (
     <div className="flex items-center justify-center h-screen bg-white">
       <div className="flex items-center space-x-4">
         <LoaderIcon className="animate-spin text-gray-900 h-12 w-12" />
-        <div className="text-xl font-medium text-black">Loading...</div>
+        <div className="text-xl font-medium text-black">
+          {content ? content : "Loading..."}
+        </div>
       </div>
     </div>
   );

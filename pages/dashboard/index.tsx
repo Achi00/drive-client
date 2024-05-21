@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { getSession } from "../api/auth/auth";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import { Button } from "@/components/ui/button";
 import api from "../api/axios";
 import { fileTypes, userTypes } from "@/types";
@@ -10,7 +9,10 @@ import toast, { Toaster } from "react-hot-toast";
 import {
   CheckCheck,
   Download,
+  File,
   FileIcon,
+  FileImage,
+  FileText,
   FolderIcon,
   Loader2,
   Lock,
@@ -32,6 +34,8 @@ import Image from "next/image";
 import CustomToast from "@/components/CustomToast";
 import { formatBytes } from "@/utils/formatBytes";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import ProtectedRoute from "@/utils/ProtectedRoute";
+import DOMPurify from "dompurify";
 
 const Dashboard = () => {
   const [user, setUser] = useState<userTypes>({
@@ -45,6 +49,12 @@ const Dashboard = () => {
   const [docsTab, setDocsTab] = useState<Window | null>(null);
   const [updateContentLoad, setUpdateContentLoad] = useState(false);
   const [isPending, setIsPending] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(false);
+
+  const sanitizedContent =
+    selectedFile && selectedFile.content
+      ? DOMPurify.sanitize(selectedFile.content)
+      : "";
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -68,24 +78,74 @@ const Dashboard = () => {
   }, []);
 
   const handleFileClick = async (file: fileTypes) => {
-    if (file.type === "file" && file.fileType === "text/plain") {
-      try {
-        const response = await api.get(`/v1/files/files/${file._id}/content`, {
-          withCredentials: true,
-        });
-        const fileContent = response.data;
-        setSelectedFile({ ...file, content: fileContent });
-      } catch (error) {
-        console.error("Error fetching file content:", error);
+    try {
+      setPreviewLoading(true);
+
+      if (file.type === "file") {
+        if (file.fileType === "text/plain") {
+          // Fetch the content for text/plain files
+          const response = await api.get(
+            `/v1/files/files/${file._id}/content`,
+            {
+              withCredentials: true,
+            }
+          );
+          const fileContent = response.data;
+          setSelectedFile({ ...file, content: fileContent });
+        } else if (
+          file.fileType === "image/png" ||
+          file.fileType === "image/jpeg" ||
+          file.fileType === "image/gif"
+        ) {
+          // Fetch the signed URL for image files
+          const response = await api.get(`/v1/files/download/${file._id}`, {
+            withCredentials: true,
+          });
+          const fileUrl = response.data.url;
+          setSelectedFile({ ...file, path: fileUrl });
+        } else {
+          // Handle other file types if needed
+          setSelectedFile(file);
+        }
+      } else {
+        // Handle folder clicks or other cases
         setSelectedFile(file);
       }
-    } else {
+
+      setPreviewLoading(false);
+    } catch (error) {
+      console.error("Error fetching file:", error);
       setSelectedFile(file);
+      setPreviewLoading(false);
     }
   };
 
   const handleCloseModal = () => {
     setSelectedFile(null);
+  };
+
+  // change icon based on file type
+  const getIconByFileType = (fileType: any) => {
+    switch (fileType) {
+      case "text/plain":
+        return (
+          <File className="h-12 w-12 text-gray-500 dark:text-gray-400 mb-2" />
+        );
+      case "image/png":
+      case "image/jpeg":
+      case "image/gif":
+        return (
+          <FileImage className="h-12 w-12 text-gray-500 dark:text-gray-400 mb-2" />
+        );
+      case "application/pdf":
+        return (
+          <FileText className="h-12 w-12 text-gray-500 dark:text-gray-400 mb-2" />
+        );
+      default:
+        return (
+          <File className="h-12 w-12 text-gray-500 dark:text-gray-400 mb-2" />
+        ); // Default icon
+    }
   };
 
   // google docs edit
@@ -107,6 +167,7 @@ const Dashboard = () => {
         toast.dismiss();
       } catch (error) {
         toast.dismiss();
+        setIsPending(false);
         console.error("Error editing in Google Docs:", error);
         toast.custom((t) => (
           <CustomToast
@@ -158,6 +219,9 @@ const Dashboard = () => {
   if (!user || loading) {
     return <Loading />;
   }
+  if (previewLoading) {
+    return <Loading content="Loading Content" />;
+  }
 
   return (
     <div>
@@ -194,7 +258,7 @@ const Dashboard = () => {
                     onClick={() => handleFileClick(file)}
                     className="bg-white w-1/6 dark:bg-gray-800 rounded-lg shadow-md p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                   >
-                    <FolderIcon className="h-12 w-12 text-gray-500 dark:text-gray-400 mb-2" />
+                    {getIconByFileType(file.fileType)}
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                       {file.name}
                     </div>
@@ -212,6 +276,7 @@ const Dashboard = () => {
         <DialogContent className="sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px]">
           <DialogHeader>
             <DialogTitle>Content Preview</DialogTitle>
+            <p>{selectedFile?._id}</p>
             <DialogDescription>
               {selectedFile?.name} -{" "}
               <span className="font-bold">
@@ -226,8 +291,13 @@ const Dashboard = () => {
               <>
                 {selectedFile.fileType === "text/plain" && (
                   <pre className="border rounded-md p-2">
-                    <ScrollArea className="h-72 w-full p-2 rounded-md border">
-                      {selectedFile.content || (
+                    <ScrollArea className=" h-96 w-full p-2 rounded-md border">
+                      {(
+                        <div
+                          dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+                          style={{ maxWidth: "100%", overflow: "auto" }}
+                        />
+                      ) || (
                         <div className="flex flex-col items-center justify-center h-[20vh]">
                           <div className="bg-gray-100 rounded-full p-4 dark:bg-gray-800">
                             <FileIcon className="h-12 w-12 text-gray-500 dark:text-gray-400" />
@@ -246,7 +316,11 @@ const Dashboard = () => {
                 {(selectedFile.fileType === "image/png" ||
                   selectedFile.fileType === "image/jpeg" ||
                   selectedFile.fileType === "image/gif") && (
-                  <img src={selectedFile.path} alt={selectedFile.name} />
+                  <img
+                    className="rounded-lg"
+                    src={selectedFile.path}
+                    alt={selectedFile.name}
+                  />
                 )}
                 {selectedFile.fileType === "application/pdf" && (
                   <iframe src={selectedFile.path} width="100%" height="400px" />
@@ -291,14 +365,16 @@ const Dashboard = () => {
                 <Download className="mr-2 h-4 w-4" />
                 Download
               </Button>
-              <Button
-                onClick={handleEditInDocs}
-                variant="outline"
-                className="flex items-center gap-2  hover:bg-[#3367D6] text-black border-[#4285F4] hover:border-[#3367D6] transition-colors shadow-lg rounded-md"
-              >
-                <Image src={Docs} alt="Edit In Docs" width={24} height={24} />
-                Edit In Docs
-              </Button>
+              {selectedFile?.fileType === "text/plain" && (
+                <Button
+                  onClick={handleEditInDocs}
+                  variant="outline"
+                  className="flex items-center gap-2 hover:bg-[#3367D6] text-black border-[#4285F4] hover:border-[#3367D6] transition-colors shadow-lg rounded-md"
+                >
+                  <Image src={Docs} alt="Edit In Docs" width={24} height={24} />
+                  Edit In Docs
+                </Button>
+              )}
             </div>
           </DialogFooter>
         </DialogContent>

@@ -1,4 +1,4 @@
-import { FileScan } from "lucide-react";
+import { CircleX, FileScan } from "lucide-react";
 import React, { useEffect } from "react";
 import { toast, Toast } from "react-hot-toast";
 
@@ -8,15 +8,15 @@ interface CustomToastProps {
 }
 
 const CustomToast: React.FC<CustomToastProps> = ({ message, t }) => {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      toast.dismiss(t.id);
-    }, 5000);
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     toast.dismiss(t.id);
+  //   }, 5000);
 
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [t.id]);
+  //   return () => {
+  //     clearTimeout(timer);
+  //   };
+  // }, [t.id]);
 
   return (
     <div
@@ -30,8 +30,8 @@ const CustomToast: React.FC<CustomToastProps> = ({ message, t }) => {
             <FileScan />
           </div>
           <div className="ml-3 flex-1">
-            <p className="text-sm font-bold text-gray-900">
-              Something went wrong
+            <p className="text-sm font-bold text-gray-900 flex items-center gap-1">
+              Something went wrong <CircleX className="text-red-700 w-4 h-4" />
             </p>
             <p className="mt-1 text-sm font-medium text-gray-500">{message}</p>
           </div>
