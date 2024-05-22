@@ -1,19 +1,17 @@
-"use client";
-import React, { useEffect, useState } from "react";
+// pages/dashboard/index.tsx
+import React from "react";
 import { getSession } from "../api/auth/auth";
 import { Button } from "@/components/ui/button";
 import api from "../api/axios";
-import { fileTypes, userTypes } from "@/types";
+import { fileTypes, userTypes, folderTypes } from "@/types";
 import Loading from "@/components/Loading";
 import toast, { Toaster } from "react-hot-toast";
 import {
   CheckCheck,
   Download,
-  File,
   FileIcon,
-  FileImage,
-  FileText,
   FolderIcon,
+  FolderOpen,
   Loader2,
   Lock,
   RefreshCcw,
@@ -31,190 +29,40 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import Image from "next/image";
-import CustomToast from "@/components/CustomToast";
 import { formatBytes } from "@/utils/formatBytes";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ProtectedRoute from "@/utils/ProtectedRoute";
-import DOMPurify from "dompurify";
+import router from "next/router";
+import { getIconByFileType } from "@/utils/getIconsByFileType";
+import useFilePreview from "@/hooks/useFilePreview";
 
-const Dashboard = () => {
-  const [user, setUser] = useState<userTypes>({
-    displayName: "",
-    photoUrl: "",
-    email: "",
-  });
-  const [files, setFiles] = useState<fileTypes[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<fileTypes | null>(null);
-  const [docsTab, setDocsTab] = useState<Window | null>(null);
-  const [updateContentLoad, setUpdateContentLoad] = useState(false);
-  const [isPending, setIsPending] = useState(false);
-  const [previewLoading, setPreviewLoading] = useState(false);
+interface DashboardProps {
+  user: userTypes;
+  initialFiles: fileTypes[];
+  initialFolders: folderTypes[];
+  imageUrls: { [key: string]: string };
+}
 
-  const sanitizedContent =
-    selectedFile && selectedFile.content
-      ? DOMPurify.sanitize(selectedFile.content)
-      : "";
+const Dashboard = ({
+  user,
+  initialFiles,
+  initialFolders,
+  imageUrls,
+}: DashboardProps) => {
+  const [files, setFiles] = React.useState<fileTypes[]>(initialFiles);
+  const [folders, setFolders] = React.useState<folderTypes[]>(initialFolders);
+  const [loading, setLoading] = React.useState(false);
 
-  useEffect(() => {
-    const fetchSession = async () => {
-      const userSession = await getSession();
-      setUser(userSession);
-    };
-
-    const fetchFiles = async () => {
-      try {
-        setLoading(true);
-        const response = await api.get("/v1/files/getfiles");
-        setFiles(response.data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching files:", error);
-      }
-    };
-
-    fetchSession();
-    fetchFiles();
-  }, []);
-
-  const handleFileClick = async (file: fileTypes) => {
-    try {
-      setPreviewLoading(true);
-
-      if (file.type === "file") {
-        if (file.fileType === "text/plain") {
-          // Fetch the content for text/plain files
-          const response = await api.get(
-            `/v1/files/files/${file._id}/content`,
-            {
-              withCredentials: true,
-            }
-          );
-          const fileContent = response.data;
-          setSelectedFile({ ...file, content: fileContent });
-        } else if (
-          file.fileType === "image/png" ||
-          file.fileType === "image/jpeg" ||
-          file.fileType === "image/gif"
-        ) {
-          // Fetch the signed URL for image files
-          const response = await api.get(`/v1/files/download/${file._id}`, {
-            withCredentials: true,
-          });
-          const fileUrl = response.data.url;
-          setSelectedFile({ ...file, path: fileUrl });
-        } else {
-          // Handle other file types if needed
-          setSelectedFile(file);
-        }
-      } else {
-        // Handle folder clicks or other cases
-        setSelectedFile(file);
-      }
-
-      setPreviewLoading(false);
-    } catch (error) {
-      console.error("Error fetching file:", error);
-      setSelectedFile(file);
-      setPreviewLoading(false);
-    }
-  };
-
-  const handleCloseModal = () => {
-    setSelectedFile(null);
-  };
-
-  // change icon based on file type
-  const getIconByFileType = (fileType: any) => {
-    switch (fileType) {
-      case "text/plain":
-        return (
-          <File className="h-12 w-12 text-gray-500 dark:text-gray-400 mb-2" />
-        );
-      case "image/png":
-      case "image/jpeg":
-      case "image/gif":
-        return (
-          <FileImage className="h-12 w-12 text-gray-500 dark:text-gray-400 mb-2" />
-        );
-      case "application/pdf":
-        return (
-          <FileText className="h-12 w-12 text-gray-500 dark:text-gray-400 mb-2" />
-        );
-      default:
-        return (
-          <File className="h-12 w-12 text-gray-500 dark:text-gray-400 mb-2" />
-        ); // Default icon
-    }
-  };
-
-  // google docs edit
-  const handleEditInDocs = async () => {
-    if (
-      selectedFile &&
-      selectedFile.type === "file" &&
-      selectedFile.fileType === "text/plain"
-    ) {
-      try {
-        setIsPending(true);
-        toast.loading("Redirecting to Google Docs...");
-        const response = await api.post(
-          `/v1/files/files/${selectedFile._id}/edit`
-        );
-        const { editUrl } = response.data;
-        const tab = window.open(editUrl, "_blank");
-        setDocsTab(tab);
-        toast.dismiss();
-      } catch (error) {
-        toast.dismiss();
-        setIsPending(false);
-        console.error("Error editing in Google Docs:", error);
-        toast.custom((t) => (
-          <CustomToast
-            message="Unable to open the file in Google Docs. Please try again later."
-            t={t}
-          />
-        ));
-      }
-    }
-  };
-
-  // periodically check if the Google Docs tab is still open
-  useEffect(() => {
-    const intervalId = setInterval(async () => {
-      if (docsTab && docsTab.closed) {
-        try {
-          setUpdateContentLoad(true);
-          console.log("making put request");
-          await api.put(`/v1/files/files/${selectedFile?._id}/content`);
-          console.log("getting content");
-          const response = await api.get(
-            `/v1/files/files/${selectedFile?._id}/content`
-          );
-          const updatedContent = response.data;
-          setSelectedFile((prevFile) => {
-            if (prevFile) {
-              return {
-                ...prevFile,
-                content: updatedContent,
-              };
-            }
-            return null;
-          });
-          console.log("done");
-          setIsPending(false);
-          setDocsTab(null);
-          setUpdateContentLoad(false);
-        } catch (error) {
-          console.error("Error saving file content:", error);
-        }
-      }
-    }, 1000);
-
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [docsTab, selectedFile]);
+  const {
+    selectedFile,
+    previewLoading,
+    isPending,
+    updateContentLoad,
+    sanitizedContent,
+    handleFileClick,
+    handleCloseModal,
+    handleEditInDocs,
+  } = useFilePreview();
 
   if (!user || loading) {
     return <Loading />;
@@ -248,17 +96,25 @@ const Dashboard = () => {
               </Button>
             </div>
           </div>
-          {/* files and folders */}
+          <h1 className="scroll-m-20 text-2xl font-bold  pl-5">Files</h1>
           <div>
             {files.length > 0 ? (
-              <div className="flex gap-5 items-center justify-cente flex-wrap xl:p-5 lg:p-5 md:p-3 sm:p-1 xs:p-1 w-full min-h-screen">
+              <div
+                className="grid gap-3 p-5 w-full" // Reduce gap size
+                style={{
+                  gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+                }}
+              >
                 {files.map((file) => (
                   <div
                     key={file._id}
                     onClick={() => handleFileClick(file)}
-                    className="bg-white w-1/6 dark:bg-gray-800 rounded-lg shadow-md p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    className="bg-white dark:bg-gray-800 border rounded-lg shadow-lg p-4 flex flex-col h-40 items-center justify-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors max-h-52 aspect-w-1 aspect-h-1"
                   >
-                    {getIconByFileType(file.fileType)}
+                    {getIconByFileType(
+                      file.fileType,
+                      imageUrls[file._id] || null
+                    )}
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                       {file.name}
                     </div>
@@ -268,7 +124,31 @@ const Dashboard = () => {
             ) : (
               <p>No files found.</p>
             )}
-            {/* <FilePreviewModal file={selectedFile} onClose={handleCloseModal} /> */}
+            <h1 className="scroll-m-20 text-2xl font-bold  pl-5">Folders</h1>
+
+            {folders.length > 0 ? (
+              <div
+                className="grid gap-3 p-5 w-full"
+                style={{
+                  gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+                }}
+              >
+                {folders.map((folder) => (
+                  <div
+                    key={folder._id}
+                    onClick={() => router.push(`/folder/${folder._id}`)}
+                    className="bg-white dark:bg-gray-800 border rounded-lg shadow-lg p-4 flex flex-col h-40 items-center justify-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors max-h-52 aspect-w-1 aspect-h-1"
+                  >
+                    <FolderOpen className="mb-2" size={48} />
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                      {folder.name}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p>No folder found</p>
+            )}
           </div>
         </div>
       </div>
@@ -383,10 +263,94 @@ const Dashboard = () => {
   );
 };
 
-const ProtectedDashboard = () => (
-  <ProtectedRoute>
-    <Dashboard />
-  </ProtectedRoute>
-);
+export async function getServerSideProps(context: any) {
+  const user = await getSession(context);
 
-export default ProtectedDashboard;
+  if (!user) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
+
+  let initialFiles = [];
+  let initialFolders = [];
+  let imageUrls = {};
+
+  try {
+    const [filesResponse, foldersResponse] = await Promise.all([
+      api.get("/v1/files/getfiles", {
+        headers: context.req
+          ? { cookie: context.req.headers.cookie }
+          : undefined,
+      }),
+      api.get("/v1/files/folders", {
+        headers: context.req
+          ? { cookie: context.req.headers.cookie }
+          : undefined,
+      }),
+    ]);
+
+    initialFiles = filesResponse.data;
+    initialFolders = foldersResponse.data;
+
+    // Fetch signed URLs for image files
+    const imageFiles = initialFiles.filter(
+      (file: fileTypes) =>
+        file.fileType === "image/png" ||
+        file.fileType === "image/jpeg" ||
+        file.fileType === "image/gif"
+    );
+
+    const urls = await Promise.all(
+      imageFiles.map(async (file: fileTypes) => {
+        try {
+          const response = await api.get(`/v1/files/download/${file._id}`, {
+            headers: context.req
+              ? { cookie: context.req.headers.cookie }
+              : undefined,
+          });
+          console.log(file._id);
+          console.log(response.data.url);
+          return { id: file._id, url: response.data.url };
+        } catch (error) {
+          console.error(
+            `Error fetching signed URL for file ${file._id}:`,
+            error
+          );
+          return { id: file._id, url: null }; // Return null for URL if there's an error
+        }
+      })
+    );
+
+    imageUrls = urls.reduce((acc, { id, url }) => {
+      if (url) {
+        acc[id] = url;
+      }
+      return acc;
+    }, {});
+  } catch (error) {
+    console.error("Error fetching initial data:", error);
+    return {
+      props: {
+        user,
+        initialFiles: [],
+        initialFolders: [],
+        imageUrls: {},
+      },
+    };
+  }
+
+  return {
+    props: {
+      user,
+      initialFiles,
+      initialFolders,
+      imageUrls,
+    },
+  };
+}
+
+export default Dashboard;

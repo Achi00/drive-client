@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { AlertCircle, Server } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import error from "next/error";
+import { useEffect } from "react";
 
 const LoginButton = () => {
   return (
@@ -19,6 +20,7 @@ const LoginButton = () => {
 function LoginForm() {
   const router = useRouter();
   const { error } = router.query;
+
   return (
     <div className="flex h-screen bg-gray-100">
       <div className="w-1/2 hidden xl:flex lg:flex bg-zinc-900 p-12 text-white  flex-col justify-between">

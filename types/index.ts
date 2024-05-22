@@ -24,3 +24,12 @@ export interface fileTypes {
   createdAt: string;
   __v: number;
 }
+export interface folderTypes {
+  isPublic: boolean;
+  _id: string;
+  user: string;
+  name: string;
+  type: string;
+  createdAt: string;
+  __v: number;
+}
