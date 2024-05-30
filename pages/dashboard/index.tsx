@@ -53,6 +53,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { formatDate } from "@/utils/formatDate";
 import Empty from "@/components/Empty";
 import FileCard from "@/components/FileCard";
+import FilePreviewModal from "@/components/FilePreviewModal";
 
 interface DashboardProps {
   user: userTypes;
@@ -175,113 +176,14 @@ const Dashboard = ({
           </div>
         </div>
       </div>
-      <Dialog open={selectedFile !== null} onOpenChange={handleCloseModal}>
-        <DialogContent className="sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px]">
-          <DialogHeader>
-            <DialogTitle>Content Preview</DialogTitle>
-            <div>
-              {selectedFile?.isPublic === false && (
-                <div className="flex items-center gap-1">
-                  <Lock /> Private File
-                </div>
-              )}
-            </div>
-            <DialogDescription>
-              {selectedFile?.name} -{" "}
-              <span className="font-bold">
-                {selectedFile
-                  ? formatBytes(selectedFile.size)
-                  : "No file selected"}
-              </span>
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            {selectedFile && (
-              <>
-                {selectedFile.fileType === "text/plain" && (
-                  <pre className="border rounded-md p-2">
-                    <ScrollArea className=" h-96 w-full p-2 rounded-md border">
-                      {(
-                        <div
-                          dangerouslySetInnerHTML={{ __html: sanitizedContent }}
-                          style={{ maxWidth: "100%", overflow: "auto" }}
-                        />
-                      ) || (
-                        <div className="flex flex-col items-center justify-center h-[20vh]">
-                          <div className="bg-gray-100 rounded-full p-4 dark:bg-gray-800">
-                            <FileIcon className="h-12 w-12 text-gray-500 dark:text-gray-400" />
-                          </div>
-                          <h3 className="mt-4 text-xl font-semibold text-gray-900 dark:text-gray-50">
-                            No content available
-                          </h3>
-                          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                            There is currently no content to display.
-                          </p>
-                        </div>
-                      )}
-                    </ScrollArea>
-                  </pre>
-                )}
-                {(selectedFile.fileType === "image/png" ||
-                  selectedFile.fileType === "image/jpeg" ||
-                  selectedFile.fileType === "image/gif" ||
-                  selectedFile.fileType === "image/webp") && (
-                  <img
-                    className="rounded-lg"
-                    src={selectedFile.path}
-                    alt={selectedFile.name}
-                  />
-                )}
-                {selectedFile.fileType === "application/pdf" && (
-                  <iframe src={selectedFile.path} width="100%" height="400px" />
-                )}
-              </>
-            )}
-          </div>
-          <DialogFooter className="sm:justify-between  items-center">
-            {!isPending &&
-              (updateContentLoad ? (
-                <div className="text-gray-500 flex items-center text-sm">
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Updating content...
-                </div>
-              ) : (
-                <div className="text-gray-500 flex items-center gap-1 text-sm">
-                  <CheckCheck />
-                  <p>This file is up to date</p>
-                </div>
-              ))}
-
-            {isPending && (
-              <div className="text-gary-500 flex items-center gap-1 text-sm">
-                <RefreshCcw className="mr-2 h-4 w-4 animate-spin scale-[-1]" />
-                <div className="flex flex-col">
-                  <p>Pending...</p>
-                  <p className="text-gray-400">
-                    Content will be updated after you close google docs page
-                  </p>
-                </div>
-              </div>
-            )}
-            <div className="flex gap-2 items-center">
-              <Button type="submit">
-                <Download className="mr-2 h-4 w-4" />
-                Download
-              </Button>
-              {selectedFile?.fileType === "text/plain" && (
-                <Button
-                  onClick={handleEditInDocs}
-                  variant="outline"
-                  className="flex items-center gap-2 hover:bg-[#3367D6] text-black border-[#4285F4] hover:border-[#3367D6] transition-colors shadow-lg rounded-md"
-                >
-                  <Image src={Docs} alt="Edit In Docs" width={24} height={24} />
-                  Edit In Docs
-                </Button>
-              )}
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <FilePreviewModal
+        selectedFile={selectedFile}
+        handleCloseModal={handleCloseModal}
+        isPending={isPending}
+        updateContentLoad={updateContentLoad}
+        sanitizedContent={sanitizedContent}
+        handleEditInDocs={handleEditInDocs}
+      />
     </div>
   );
 };
