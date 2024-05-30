@@ -21,7 +21,8 @@ export const handleFileClick = async (
       } else if (
         file.fileType === "image/png" ||
         file.fileType === "image/jpeg" ||
-        file.fileType === "image/gif"
+        file.fileType === "image/gif" ||
+        file.fileType === "image/webp"
       ) {
         // Fetch the signed URL for image files
         const response = await api.get(`/v1/files/download/${file._id}`, {

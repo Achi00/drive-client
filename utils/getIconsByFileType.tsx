@@ -1,32 +1,87 @@
+// utils/getIconsByFileType.tsx
 import { File, FileImage, FileText } from "lucide-react";
+import Image from "next/image";
+import { sanitizeHtml } from "./sanitizeHtml";
 
-export const getIconByFileType = (fileType: any, imageUrl: string | null) => {
+const hasHtmlTags = (content: string) => {
+  const regex = /<\/?[a-z][\s\S]*>/i;
+  return regex.test(content);
+};
+
+export const getIconByFileType = (fileType: any) => {
+  let icon;
+  switch (fileType) {
+    case "text/plain":
+      icon = <FileText size={20} />;
+      break;
+    case "image/png":
+    case "image/jpeg":
+    case "image/gif":
+    case "image/webp":
+      icon = <FileImage size={20} />;
+      break;
+    case "application/pdf":
+      icon = <FileText size={20} />;
+      break;
+    default:
+      icon = <File size={20} />; // Default icon
+      break;
+  }
+  return icon;
+};
+
+export const getPreviewByFileType = (
+  fileType: any,
+  content: string,
+  imageUrl: string | null
+) => {
+  let preview;
+
   if (
     imageUrl &&
     (fileType === "image/png" ||
       fileType === "image/jpeg" ||
-      fileType === "image/gif")
+      fileType === "image/gif" ||
+      fileType === "image/webp")
   ) {
-    return (
-      <img
+    preview = (
+      <Image
         src={imageUrl}
         alt="File"
-        className="mb-2"
-        style={{ width: "48px", height: "48px", objectFit: "cover" }}
+        className="mb-2 rounded-md"
+        width={148}
+        height={148}
+        objectFit="cover"
+        loading="lazy"
       />
     );
+  } else if (content && fileType === "text/plain") {
+    const sanitizedContent = sanitizeHtml(content);
+    const containsHtml = hasHtmlTags(sanitizedContent);
+
+    preview = (
+      <div
+        className={`text-xs max-w-full max-h-full overflow-hidden ${
+          containsHtml &&
+          "flex justify-center items-center relative h-32 w-full"
+        }`}
+      >
+        <div
+          className={`${
+            containsHtml ? "max-w-full max-h-full overflow-hidden" : ""
+          }`}
+          style={{
+            whiteSpace: containsHtml ? "normal" : "nowrap",
+            transform: containsHtml ? "scale(0.5)" : "none",
+            transformOrigin: containsHtml ? "center" : "initial",
+          }}
+          dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+        />
+      </div>
+    );
+  } else {
+    preview = <File className="mb-2" size={60} />; // Default preview
   }
 
-  switch (fileType) {
-    case "text/plain":
-      return <File className="mb-2" size={48} />;
-    case "image/png":
-    case "image/jpeg":
-    case "image/gif":
-      return <FileImage className="mb-2" size={48} />;
-    case "application/pdf":
-      return <FileText className="mb-2" size={48} />;
-    default:
-      return <File className="mb-2" size={48} />; // Default icon
-  }
+  return preview;
 };

@@ -1,4 +1,3 @@
-// components/ProtectedRoute.js
 import { ReactNode, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { getSession } from "@/pages/api/auth/auth";
@@ -16,8 +15,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const checkAuth = async () => {
       try {
         const userSession = await getSession();
-        if (!userSession) {
-          router.push("/login?error=NotAuthenticated");
+        if (!userSession || userSession.error) {
+          setIsLoading(false);
+          router.push("/login?error=Not%20Authenticated");
         } else {
           setIsLoading(false);
         }
@@ -33,7 +33,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <Loading />;
   }
 
-  return children;
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;

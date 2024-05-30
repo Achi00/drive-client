@@ -1,10 +1,12 @@
 // pages/folder/[slug].tsx
-
 import { useRouter } from "next/router";
 import React from "react";
 import api from "../api/axios";
 import { fileTypes, userTypes } from "@/types";
-import { getIconByFileType } from "@/utils/getIconsByFileType";
+import {
+  getIconByFileType,
+  getPreviewByFileType,
+} from "@/utils/getIconsByFileType";
 import useFilePreview from "@/hooks/useFilePreview";
 import {
   Dialog,
@@ -30,8 +32,11 @@ import Docs from "../../public/google-docs.png";
 import Sidebar from "@/components/Sidebar";
 import { getSession } from "../api/auth/auth";
 import Loading from "@/components/Loading";
+import Header from "@/components/Header";
+import Empty from "@/components/Empty";
+import FileCard from "@/components/FileCard";
 
-const FolderPage = ({ user, initialFiles }: any) => {
+const FolderPage = ({ user, initialFiles, imageUrls }: any) => {
   const router = useRouter();
   const { slug } = router.query;
   const [files, setFiles] = React.useState<fileTypes[]>(initialFiles);
@@ -54,25 +59,26 @@ const FolderPage = ({ user, initialFiles }: any) => {
   return (
     <div className="flex h-screen w-full">
       <Sidebar user={user} />
-      <h1>Folder: {slug}</h1>
-      <div>
+      <div className="flex-1 p-6">
+        <Header />
         {files.length > 0 ? (
-          <div className="flex gap-5 items-center justify-center flex-wrap xl:p-5 lg:p-5 md:p-3 sm:p-1 xs:p-1 w-full min-h-screen">
+          <div
+            className="grid gap-3 p-5 w-full" // Reduce gap size
+            style={{
+              gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+            }}
+          >
             {files.map((file) => (
-              <div
+              <FileCard
                 key={file._id}
-                onClick={() => handleFileClick(file)}
-                className="bg-white w-1/6 dark:bg-gray-800 rounded-lg shadow-md p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              >
-                {getIconByFileType(file.fileType)}
-                <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                  {file.name}
-                </div>
-              </div>
+                file={file}
+                imageUrls={imageUrls}
+                handleFileClick={handleFileClick}
+              />
             ))}
           </div>
         ) : (
-          <p>No files found.</p>
+          <Empty message="There is nothing here, try upload new files" />
         )}
       </div>
       <Dialog open={selectedFile !== null} onOpenChange={handleCloseModal}>
@@ -94,11 +100,11 @@ const FolderPage = ({ user, initialFiles }: any) => {
               <>
                 {selectedFile.fileType === "text/plain" && (
                   <pre className="border rounded-md p-2">
-                    <ScrollArea className=" h-96 w-full p-2 rounded-md border">
+                    <ScrollArea className="h-96 w-full p-2 rounded-md border">
                       {(
                         <div
                           dangerouslySetInnerHTML={{ __html: sanitizedContent }}
-                          style={{ maxWidth: "100%", overflow: "auto" }}
+                          className="max-w-full overflow-auto break-words whitespace-pre-wrap"
                         />
                       ) || (
                         <div className="flex flex-col items-center justify-center h-[20vh]">
@@ -118,7 +124,8 @@ const FolderPage = ({ user, initialFiles }: any) => {
                 )}
                 {(selectedFile.fileType === "image/png" ||
                   selectedFile.fileType === "image/jpeg" ||
-                  selectedFile.fileType === "image/gif") && (
+                  selectedFile.fileType === "image/gif" ||
+                  selectedFile.fileType === "image/webp") && (
                   <img
                     className="rounded-lg"
                     src={selectedFile.path}
@@ -131,7 +138,7 @@ const FolderPage = ({ user, initialFiles }: any) => {
               </>
             )}
           </div>
-          <DialogFooter className="sm:justify-between  items-center">
+          <DialogFooter className="sm:justify-between items-center">
             {!isPending &&
               (updateContentLoad ? (
                 <div className="text-gray-500 flex items-center text-sm">
@@ -199,6 +206,7 @@ export async function getServerSideProps(context: any) {
   }
 
   let initialFiles = [];
+  let imageUrls = {};
 
   try {
     const response = await api.get(
@@ -210,6 +218,31 @@ export async function getServerSideProps(context: any) {
       }
     );
     initialFiles = response.data;
+
+    // Fetch signed URLs for image files
+    const imageFiles = initialFiles.filter(
+      (file: fileTypes) =>
+        file.fileType === "image/png" ||
+        file.fileType === "image/jpeg" ||
+        file.fileType === "image/gif" ||
+        file.fileType === "image/webp"
+    );
+
+    const urls = await Promise.all(
+      imageFiles.map(async (file: fileTypes) => {
+        const response = await api.get(`/v1/files/download/${file._id}`, {
+          headers: context.req
+            ? { cookie: context.req.headers.cookie }
+            : undefined,
+        });
+        return { id: file._id, url: response.data.url };
+      })
+    );
+
+    imageUrls = urls.reduce((acc, { id, url }) => {
+      acc[id] = url;
+      return acc;
+    }, {});
   } catch (error) {
     console.error("Error fetching initial data:", error);
   }
@@ -218,6 +251,7 @@ export async function getServerSideProps(context: any) {
     props: {
       user,
       initialFiles,
+      imageUrls,
     },
   };
 }

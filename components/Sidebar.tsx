@@ -24,7 +24,10 @@ export default function Sidebar({ user }: UserProps) {
       <div className="hidden lg:block lg:w-64 ">
         <div className="fixed lg:shrink-0 lg:border-r lg:bg-gray-100 dark:lg:bg-gray-800 flex h-full flex-col justify-between py-6 px-4">
           <div className="space-y-6">
-            <Link className="flex items-center gap-2 font-bold" href="#">
+            <Link
+              className="flex items-center gap-2 font-bold"
+              href="/dashboard"
+            >
               <h2 className="text-lg flex items-center gap-3 font-semibold text-gray-900 dark:text-gray-100 sm:text-sm">
                 <Server />
                 Drive

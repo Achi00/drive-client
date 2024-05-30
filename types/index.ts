@@ -2,6 +2,8 @@ export interface userTypes {
   displayName: string;
   photoUrl: string;
   email: string;
+  totalStorageUsed: number;
+  storageLimit: number;
 }
 
 export interface UserProps {
