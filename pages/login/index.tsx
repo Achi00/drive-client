@@ -6,8 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Server } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import error from "next/error";
-import { useEffect } from "react";
 
 const LoginButton = () => {
   return (
@@ -21,9 +19,13 @@ function LoginForm() {
   const router = useRouter();
   const { error } = router.query;
 
+  const handleGoogleLogin = () => {
+    window.location.href = "http://localhost:8080/auth/google";
+  };
+
   return (
     <div className="flex h-screen bg-gray-100">
-      <div className="w-1/2 hidden xl:flex lg:flex bg-zinc-900 p-12 text-white  flex-col justify-between">
+      <div className="w-1/2 hidden xl:flex lg:flex bg-zinc-900 p-12 text-white flex-col justify-between">
         <Link href="/" className="flex items-center gap-2">
           <Server className="h-8 w-8 text-white" />
           <h1 className="text-3xl font-semibold">Drive</h1>
@@ -55,7 +57,7 @@ function LoginForm() {
           </li>
         </ul>
       </div>
-      <div className="xl:w-1/2 lg:w-1/2 w-full  flex items-center justify-center p-12">
+      <div className="xl:w-1/2 lg:w-1/2 w-full flex items-center justify-center p-12">
         <div className="w-full max-w-md">
           <div className="p-5">
             {error && (
@@ -73,20 +75,22 @@ function LoginForm() {
                 Authenticate to get access on website
               </p>
             </div>
-            <form className="mb-0 space-y-6">
+            <form
+              className="mb-0 space-y-6"
+              onSubmit={(e) => e.preventDefault()}
+            >
               <div className="relative">
                 <div className="flex items-center">
                   <div className="w-full border-t border-gray-300" />
                 </div>
               </div>
               <div>
-                <Button className="w-full hover:bg-black hover:text-white bg-white text-gray-700 border border-gray-300 shadow-sm">
+                <Button
+                  className="w-full hover:bg-black hover:text-white bg-white text-gray-700 border border-gray-300 shadow-sm"
+                  onClick={handleGoogleLogin}
+                >
                   <FaGoogle className="mr-2 h-4 w-4" />
-                  <span>
-                    <a href="http://localhost:8080/auth/google">
-                      Login with Google
-                    </a>
-                  </span>
+                  <span>Login with Google</span>
                 </Button>
               </div>
             </form>

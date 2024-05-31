@@ -13,7 +13,7 @@ interface MyAppProps extends AppProps {
 
 function MyApp({ Component, pageProps }: MyAppProps) {
   const router = useRouter();
-  const unprotectedRoutes = ["/file/[id]"];
+  const unprotectedRoutes = ["/file/[id]", "/login"];
 
   const isProtectedRoute = !unprotectedRoutes.includes(router.pathname);
   const user = pageProps.user; // Destructure user from pageProps

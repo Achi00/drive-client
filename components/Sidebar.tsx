@@ -19,6 +19,9 @@ import User from "./User";
 import { UserProps } from "@/types";
 
 export default function Sidebar({ user }: UserProps) {
+  if (!user) {
+    return null;
+  }
   return (
     <div className="flex h-screen">
       <div className="hidden lg:block lg:w-64 ">

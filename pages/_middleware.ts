@@ -1,5 +1,3 @@
-// pages/_middleware.ts
-
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getSession } from "./api/auth/auth";
@@ -21,7 +19,7 @@ export async function middleware(req: NextRequest) {
   }
 
   // If there is no session and the route is protected, redirect to login
-  if (!session) {
+  if (!session || session.error) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
