@@ -72,6 +72,10 @@ const Dashboard = ({
   const [folders, setFolders] = React.useState<folderTypes[]>(initialFolders);
   const [loading, setLoading] = React.useState(false);
 
+  const handleFileMoveToTrash = (fileId: string) => {
+    setFiles((prevFiles) => prevFiles.filter((file) => file._id !== fileId));
+  };
+
   const {
     selectedFile,
     previewLoading,
@@ -94,7 +98,6 @@ const Dashboard = ({
     <div>
       <Toaster />
       <div className="flex h-screen w-full">
-        <Sidebar user={user} />
         <div className="flex-1 p-6">
           <Header />
           <h1 className="scroll-m-20 text-2xl font-bold  pl-5">Folders</h1>
@@ -132,41 +135,12 @@ const Dashboard = ({
                 }}
               >
                 {files.map((file) => (
-                  // <>
-                  //   <div
-                  //     key={file._id}
-                  //     onClick={() => handleFileClick(file)}
-                  //     className="bg-white dark:bg-gray-800 border rounded-lg shadow-lg p-4 flex flex-col h-60 items-center justify-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors aspect-w-1 aspect-h-1 relative"
-                  //   >
-                  //     <div className="flex items-center justify-between w-full gap-1 mb-2">
-                  //       <div className="flex items-center gap-1">
-                  //         <div>{getIconByFileType(file.fileType)}</div>
-                  //         <h3 className="scroll-m-20 text-xl tracking-tight">
-                  //           {file.name}
-                  //         </h3>
-                  //       </div>
-                  //       {file.isPublic === false && (
-                  //         // <div className="text-xs">Private</div>
-                  //         <Lock size={16} />
-                  //       )}
-                  //     </div>
-                  //     <div className="flex-grow border rounded-md p-2 w-full flex items-center justify-center">
-                  //       {getPreviewByFileType(
-                  //         file.fileType,
-                  //         file.content || "",
-                  //         imageUrls[file._id] || null
-                  //       )}
-                  //     </div>
-                  //     <div className="text-sm text-gray-500 dark:text-gray-100 truncate mt-2">
-                  //       Created: {formatDate(file.createdAt)}
-                  //     </div>
-                  //   </div>
-                  // </>
                   <FileCard
                     key={file._id}
                     file={file}
                     imageUrls={imageUrls}
                     handleFileClick={handleFileClick}
+                    onMoveToTrash={handleFileMoveToTrash}
                   />
                 ))}
               </div>

@@ -1,35 +1,8 @@
-// pages/folder/[slug].tsx
-import { useRouter } from "next/router";
 import React from "react";
 import api from "../api/axios";
-import { fileTypes, userTypes } from "@/types";
-import {
-  getIconByFileType,
-  getPreviewByFileType,
-} from "@/utils/getIconsByFileType";
+import { fileTypes } from "@/types";
+
 import useFilePreview from "@/hooks/useFilePreview";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { formatBytes } from "@/utils/formatBytes";
-import {
-  CheckCheck,
-  Download,
-  FileIcon,
-  Loader2,
-  RefreshCcw,
-  Lock,
-} from "lucide-react";
-import Image from "next/image";
-import Docs from "../../public/google-docs.png";
-import Sidebar from "@/components/Sidebar";
 import { getSession } from "../api/auth/auth";
 import Loading from "@/components/Loading";
 import Header from "@/components/Header";
@@ -38,8 +11,6 @@ import FileCard from "@/components/FileCard";
 import FilePreviewModal from "@/components/FilePreviewModal";
 
 const FolderPage = ({ user, initialFiles, imageUrls }: any) => {
-  const router = useRouter();
-  const { slug } = router.query;
   const [files, setFiles] = React.useState<fileTypes[]>(initialFiles);
 
   const {
@@ -53,13 +24,16 @@ const FolderPage = ({ user, initialFiles, imageUrls }: any) => {
     handleEditInDocs,
   } = useFilePreview();
 
+  const handleFileMoveToTrash = (fileId: string) => {
+    setFiles((prevFiles) => prevFiles.filter((file) => file._id !== fileId));
+  };
+
   if (previewLoading) {
     return <Loading content="Loading Content" />;
   }
 
   return (
     <div className="flex h-screen w-full">
-      <Sidebar user={user} />
       <div className="flex-1 p-6">
         <Header />
         {files.length > 0 ? (
@@ -75,6 +49,7 @@ const FolderPage = ({ user, initialFiles, imageUrls }: any) => {
                 file={file}
                 imageUrls={imageUrls}
                 handleFileClick={handleFileClick}
+                onMoveToTrash={handleFileMoveToTrash}
               />
             ))}
           </div>

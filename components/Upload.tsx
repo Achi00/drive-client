@@ -5,7 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useRouter } from "next/router";
-import { Eye, UploadIcon } from "lucide-react";
+import { Eye, Loader2, UploadIcon } from "lucide-react";
 import { formatBytes } from "@/utils/formatBytes";
 import toast from "react-hot-toast";
 import { useParams } from "next/navigation";
@@ -136,10 +136,17 @@ const Upload = () => {
             <Button
               className="w-full"
               type="button"
-              disabled={uploading}
+              disabled={uploading || !files}
               onClick={uploadFiles}
             >
-              {uploading ? "Uploading..." : "Upload"}
+              {uploading ? (
+                <p className="flex items-center gap-2">
+                  <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                  Uploading
+                </p>
+              ) : (
+                "Upload"
+              )}
             </Button>
           </div>
           {message && (

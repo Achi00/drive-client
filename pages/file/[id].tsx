@@ -8,6 +8,7 @@ import Loading from "@/components/Loading";
 import FileDetails from "@/components/FileDetails";
 import AccessDenied from "@/components/AccessDenied";
 import { sanitizeHtml } from "@/utils/sanitizeHtml";
+import { getSession } from "../api/auth/auth";
 
 interface FilePageProps {
   file: fileTypes | null;
@@ -45,6 +46,16 @@ const FilePage: React.FC<FilePageProps> = ({
 export const getServerSideProps: GetServerSideProps<FilePageProps> = async (
   context
 ) => {
+  const user = await getSession(context);
+
+  if (!user) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
   const id = context.params?.id as string;
   const cookie = context.req.headers.cookie;
 
@@ -86,6 +97,7 @@ export const getServerSideProps: GetServerSideProps<FilePageProps> = async (
       sanitizedContent,
       error,
       errorCode,
+      user,
     },
   };
 };

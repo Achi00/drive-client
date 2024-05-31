@@ -24,6 +24,7 @@ export interface fileTypes {
   content?: string;
   isPublic: boolean;
   createdAt: string;
+  deletedAt?: string;
   __v: number;
 }
 export interface folderTypes {
@@ -34,4 +35,32 @@ export interface folderTypes {
   type: string;
   createdAt: string;
   __v: number;
+}
+
+export interface TrashProps {
+  files: Array<{
+    _id: string;
+    name: string;
+    fileType: string;
+    deletedAt: string;
+    isPublic?: boolean;
+    content?: string;
+    createdAt?: string;
+  }>;
+  imageUrls: { [key: string]: string | null };
+}
+
+export interface FileCardProps {
+  file: {
+    _id: string;
+    name: string;
+    fileType: string;
+    isPublic: boolean;
+    content?: string;
+    createdAt?: string;
+    deletedAt?: string;
+  };
+  imageUrls: { [key: string]: string | null };
+  handleFileClick?: (file: any) => void;
+  onMoveToTrash?: (fileId: string) => void;
 }

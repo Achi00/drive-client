@@ -2,12 +2,14 @@ import { Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import Upload from "./Upload";
+import { usePathname } from "next/navigation";
 
 interface emptyTypes {
   message: string;
 }
 
 const Empty = ({ message }: emptyTypes) => {
+  const pathname = usePathname();
   return (
     <div className="flex h-[100dvh] flex-col items-center justify-center gap-6 px-4 text-center">
       <MicroscopeIcon className="h-24 w-24 text-gray-900" />
@@ -20,8 +22,12 @@ const Empty = ({ message }: emptyTypes) => {
         </p>
       </div>
       <div className="flex flex-col gap-2">
-        <Upload />
-        <h1>Or</h1>
+        {pathname !== "/trash" && (
+          <>
+            <Upload />
+            <h1>Or</h1>
+          </>
+        )}
         <Link
           className="flex gap-2 border border-gray-300 px-2 font-bold h-10 items-center justify-center rounded-md "
           href="/dashboard"

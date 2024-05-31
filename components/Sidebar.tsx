@@ -36,7 +36,7 @@ export default function Sidebar({ user }: UserProps) {
             <nav className="flex-1 space-y-2 pl-4 py-4">
               <Link
                 className="flex items-center gap-3 rounded-md px-4 py-2 text-gray-700 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-700 sm:px-2 sm:text-sm"
-                href="#"
+                href="/dashboard"
               >
                 <HardDrive className="h-5 w-5" />
                 <span className="sm:hidden md:inline">My Drive</span>
@@ -57,7 +57,7 @@ export default function Sidebar({ user }: UserProps) {
               </Link>
               <Link
                 className="flex items-center gap-3 rounded-md px-4 py-2 text-gray-700 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-700 sm:px-2 sm:text-sm"
-                href="#"
+                href="/trash"
               >
                 <Trash2 className="h-5 w-5" />
                 <span className="sm:hidden md:inline">Trash</span>
