@@ -15,6 +15,7 @@ interface FilePageProps {
   sanitizedContent: string;
   error: string | null;
   errorCode: number | null;
+  imageUrl: string | null;
 }
 
 const FilePage: React.FC<FilePageProps> = ({
@@ -22,6 +23,7 @@ const FilePage: React.FC<FilePageProps> = ({
   sanitizedContent,
   error,
   errorCode,
+  imageUrl,
 }) => {
   if (errorCode === 403) {
     return <AccessDenied />;
@@ -38,7 +40,11 @@ const FilePage: React.FC<FilePageProps> = ({
 
   return (
     <div className="p-6">
-      <FileDetails file={file} sanitizedContent={sanitizedContent} />
+      <FileDetails
+        file={file}
+        imageUrl={imageUrl}
+        sanitizedContent={sanitizedContent}
+      />
     </div>
   );
 };
@@ -66,6 +72,7 @@ export const getServerSideProps: GetServerSideProps<FilePageProps> = async (
   let sanitizedContent = "";
   let error = null;
   let errorCode = null;
+  let imageUrl = null;
 
   try {
     const response = await api.get(`/v1/files/files/${id}`, {
@@ -74,6 +81,20 @@ export const getServerSideProps: GetServerSideProps<FilePageProps> = async (
     file = response.data;
 
     console.log("File data:", file);
+
+    // Fetch the image URL if the file is an image
+    if (
+      file &&
+      (file.fileType === "image/png" ||
+        file.fileType === "image/jpeg" ||
+        file.fileType === "image/gif" ||
+        file.fileType === "image/webp")
+    ) {
+      const imageResponse = await api.get(`/v1/files/download/${id}`, {
+        headers: cookie ? { cookie } : undefined,
+      });
+      imageUrl = imageResponse.data.url;
+    }
 
     // Sanitize content if it's plain text
     if (file && file.fileType === "text/plain" && file.content) {
@@ -90,7 +111,6 @@ export const getServerSideProps: GetServerSideProps<FilePageProps> = async (
       error = "An unexpected error occurred.";
     }
   }
-
   return {
     props: {
       file,
@@ -98,6 +118,7 @@ export const getServerSideProps: GetServerSideProps<FilePageProps> = async (
       error,
       errorCode,
       user,
+      imageUrl,
     },
   };
 };

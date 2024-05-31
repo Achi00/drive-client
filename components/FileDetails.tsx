@@ -12,13 +12,14 @@ import { Button } from "@/components/ui/button";
 interface FileDetailsProps {
   file: fileTypes;
   sanitizedContent: string;
+  imageUrl: string | null;
   handleEditInDocs?: () => void;
 }
 
 const FileDetails: React.FC<FileDetailsProps> = ({
   file,
   sanitizedContent,
-  handleEditInDocs,
+  imageUrl,
 }) => {
   return (
     <div className="w-1/2 mx-auto p-4">
@@ -58,7 +59,15 @@ const FileDetails: React.FC<FileDetailsProps> = ({
           file.fileType === "image/jpeg" ||
           file.fileType === "image/gif" ||
           file.fileType === "image/webp") && (
-          <img className="rounded-lg" src={file.path} alt={file.name} />
+          <Image
+            className="rounded-lg"
+            src={imageUrl || file.path}
+            alt={file.name}
+            objectFit="cover"
+            loading="lazy"
+            width={1280}
+            height={720}
+          />
         )}
         {file.fileType === "application/pdf" && (
           <iframe src={file.path} width="100%" height="400px" />
