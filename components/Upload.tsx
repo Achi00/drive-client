@@ -1,16 +1,16 @@
-// components/Upload.tsx
 import React, { useState, useCallback } from "react";
 import { useDropzone, FileRejection } from "react-dropzone";
 import axios from "axios";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Eye, Loader2, UploadIcon } from "lucide-react";
+import { Eye, Loader2, Siren, UploadIcon } from "lucide-react";
 import { formatBytes } from "@/utils/formatBytes";
 import toast from "react-hot-toast";
 import { useParams } from "next/navigation";
 import { fileTypes } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Alert, AlertTitle, AlertDescription } from "./ui/alert";
 
 interface UploadProps {
   onUploadSuccess: (
@@ -179,6 +179,14 @@ const Upload: React.FC<UploadProps> = ({ onUploadSuccess }) => {
               Drag and drop a file to upload to your Google Drive storage.
             </p>
           </div>
+          <Alert>
+            <Siren className="h-4 w-4 " color="#ff0000" />
+            <AlertTitle>File Upload Limitations</AlertTitle>
+            <AlertDescription>
+              We currently only support image and text file uploads. Please
+              ensure your files are text or image formats. Limit is 5 files
+            </AlertDescription>
+          </Alert>
           <div className="space-y-4">
             <div
               {...getRootProps({

@@ -29,6 +29,7 @@ import {
   getPreviewByFileType,
 } from "@/utils/getIconsByFileType";
 import Link from "next/link";
+import DownloadButton from "./buttons/DownloadButton";
 
 interface FilePreviewModalProps {
   selectedFile: fileTypes | null;
@@ -148,10 +149,12 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({
           )}
 
           <div className="flex gap-2 items-center">
-            <Button type="submit">
-              <Download className="mr-2 h-4 w-4" />
-              Download
-            </Button>
+            {selectedFile && (
+              <DownloadButton
+                fileId={selectedFile._id}
+                fileName={selectedFile.name}
+              />
+            )}
             {selectedFile?.fileType === "text/plain" && (
               <Button
                 onClick={handleEditInDocs}

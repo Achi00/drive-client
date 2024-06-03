@@ -8,6 +8,7 @@ import { formatBytes } from "@/utils/formatBytes";
 import { fileTypes } from "@/types";
 import Docs from "../assets/images/google-docs.png";
 import { Button } from "@/components/ui/button";
+import DownloadButton from "./buttons/DownloadButton";
 
 interface FileDetailsProps {
   file: fileTypes;
@@ -80,10 +81,7 @@ const FileDetails: React.FC<FileDetailsProps> = ({
           </div>
         )}
         <div className="flex items-center gap-2 mb-4">
-          <Button type="submit">
-            <Download className="mr-2 h-4 w-4" />
-            Download
-          </Button>
+          <DownloadButton fileId={file._id} fileName={file.name} />
         </div>
       </div>
     </div>
