@@ -1,30 +1,76 @@
+// components/Upload.tsx
 import React, { useState, useCallback } from "react";
-import { useDropzone } from "react-dropzone";
+import { useDropzone, FileRejection } from "react-dropzone";
 import axios from "axios";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { useRouter } from "next/router";
 import { Eye, Loader2, UploadIcon } from "lucide-react";
 import { formatBytes } from "@/utils/formatBytes";
 import toast from "react-hot-toast";
 import { useParams } from "next/navigation";
+import { fileTypes } from "@/types";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
-const Upload = () => {
+interface UploadProps {
+  onUploadSuccess: (
+    newFiles: fileTypes[],
+    newImageUrls: { [key: string]: string | null }
+  ) => void;
+}
+
+interface UploadResults {
+  uploaded: string[];
+  rejected: string[];
+  duplicates: string[];
+  totalStorageUsed: string;
+  availableStorage: string;
+}
+
+const Upload: React.FC<UploadProps> = ({ onUploadSuccess }) => {
   const [files, setFiles] = useState<File[]>([]);
+  const [rejectedFiles, setRejectedFiles] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [message, setMessage] = useState("");
   const [isPublic, setIsPublic] = useState(false);
+  const [uploadResults, setUploadResults] = useState<UploadResults | null>(
+    null
+  );
 
   const params = useParams<{ tag: string; item: string; slug: string }>();
-  console.log(params.slug);
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    setFiles((prevFiles) => [...prevFiles, ...acceptedFiles]);
-  }, []);
+  const onDrop = useCallback(
+    (acceptedFiles: File[], fileRejections: FileRejection[]) => {
+      const supportedTypes = ["image/jpeg", "image/png", "text/plain"];
+      const newAcceptedFiles: File[] = [];
+      const newRejectedFiles: string[] = [];
 
-  const { getRootProps, getInputProps } = useDropzone({ onDrop });
+      acceptedFiles.forEach((file) => {
+        if (supportedTypes.includes(file.type)) {
+          newAcceptedFiles.push(file);
+        } else {
+          newRejectedFiles.push(file.name + " (unsupported file type)");
+        }
+      });
+
+      fileRejections.forEach(({ file, errors }) => {
+        newRejectedFiles.push(file.name + " (unsupported file type)");
+      });
+
+      setFiles((prevFiles) => [...prevFiles, ...newAcceptedFiles]);
+      setRejectedFiles((prevRejectedFiles) => [
+        ...prevRejectedFiles,
+        ...newRejectedFiles,
+      ]);
+    },
+    []
+  );
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    maxFiles: 5,
+  });
 
   const handlePublicChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setIsPublic(event.target.value === "true");
@@ -37,13 +83,12 @@ const Upload = () => {
     });
     formData.append("isPublic", isPublic.toString());
 
-    // Only append parentFolderId if it's present in the URL
     if (params.slug) {
       formData.append("parent", params.slug as string);
-      console.log("uploaded at:" + params.slug);
     }
 
     try {
+      setUploadResults(null);
       setUploading(true);
       const response = await axios.post(
         "http://localhost:8080/v1/files/upload",
@@ -61,17 +106,54 @@ const Upload = () => {
           withCredentials: true,
         }
       );
-      setMessage("Files uploaded successfully!");
+
+      const result = response.data;
+      setUploadResults(result); // Set the upload results to display them
       toast.success("Files uploaded successfully!");
-      console.log(response.data);
+
+      const uploadedFiles = result.uploadedFiles;
+      const imageFiles = uploadedFiles.filter(
+        (file: any) =>
+          file.fileType === "image/png" ||
+          file.fileType === "image/jpeg" ||
+          file.fileType === "image/gif" ||
+          file.fileType === "image/webp"
+      );
+
+      const urls = await Promise.all(
+        imageFiles.map(async (file: any) => {
+          try {
+            const response = await axios.get(
+              `http://localhost:8080/v1/files/download/${file._id}`
+            );
+            return { id: file._id, url: response.data.url };
+          } catch (error) {
+            console.error(
+              `Error fetching signed URL for file ${file._id}:`,
+              error
+            );
+            return { id: file._id, url: null };
+          }
+        })
+      );
+
+      const imageUrls = urls.reduce<{ [key: string]: string | null }>(
+        (acc, { id, url }) => {
+          if (url) {
+            acc[id] = url;
+          }
+          return acc;
+        },
+        {}
+      );
+
+      onUploadSuccess(uploadedFiles, imageUrls);
     } catch (error: any) {
       if (error.response && error.response.status === 413) {
         setMessage(
           "Failed to upload files. Body exceeded size limit." +
             (error.response.data.message || "")
         );
-      } else {
-        setMessage("Failed to upload files. Please try again.");
       }
       console.error(error);
     } finally {
@@ -160,6 +242,35 @@ const Upload = () => {
                 {file.name} - {formatBytes(file.size)}
               </div>
             ))}
+            {rejectedFiles.map((fileName, index) => (
+              <div key={index} className="text-sm font-bold text-red-500">
+                {fileName}
+              </div>
+            ))}
+            {uploadResults && (
+              <div className="upload-results mt-4">
+                <div className="flex gap-4 flex-col">
+                  <h2 className="text-2xl font-bold">Upload Results</h2>
+                  <div className=" border-t border-black">
+                    {uploadResults.uploaded.join(", ")}
+                  </div>
+                  {/* <p>Total Storage Used: {uploadResults.totalStorageUsed}</p> */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Total Storage Used</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex flex-col gap-2">
+                      <div className="text-4xl font-bold">
+                        {uploadResults.totalStorageUsed}
+                      </div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {uploadResults.availableStorage} available
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </DialogContent>

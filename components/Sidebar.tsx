@@ -17,11 +17,15 @@ import {
 } from "lucide-react";
 import User from "./User";
 import { UserProps } from "@/types";
+import { Progress } from "./ui/progress";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { calculatePercentage, formatBytes } from "@/utils/formatBytes";
 
 export default function Sidebar({ user }: UserProps) {
   if (!user) {
     return null;
   }
+  console.log(user);
   return (
     <div className="flex h-screen">
       <div className="hidden lg:block lg:w-64 ">
@@ -46,25 +50,49 @@ export default function Sidebar({ user }: UserProps) {
               </Link>
               <Link
                 className="flex items-center gap-3 rounded-md px-4 py-2 text-gray-700 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-700 sm:px-2 sm:text-sm"
-                href="#"
-              >
-                <Star className="h-5 w-5" />
-                <span className="sm:hidden md:inline">Starred</span>
-              </Link>
-              <Link
-                className="flex items-center gap-3 rounded-md px-4 py-2 text-gray-700 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-700 sm:px-2 sm:text-sm"
-                href="#"
-              >
-                <History className="h-5 w-5" />
-                <span className="sm:hidden md:inline">Recent</span>
-              </Link>
-              <Link
-                className="flex items-center gap-3 rounded-md px-4 py-2 text-gray-700 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-700 sm:px-2 sm:text-sm"
                 href="/trash"
               >
                 <Trash2 className="h-5 w-5" />
                 <span className="sm:hidden md:inline">Trash</span>
               </Link>
+              <Card className="w-full max-w-md">
+                <CardHeader>
+                  <CardTitle>Storage Usage</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">
+                      {formatBytes(user.totalStorageUsed)} /{" "}
+                      {formatBytes(user.storageLimit)}
+                    </span>
+                    <span className="text-sm font-medium">
+                      {calculatePercentage(
+                        user.totalStorageUsed,
+                        user.storageLimit
+                      )}
+                    </span>
+                  </div>
+                  <Progress
+                    value={parseFloat(
+                      calculatePercentage(
+                        user.totalStorageUsed,
+                        user.storageLimit
+                      ).replace("%", "")
+                    )}
+                    className="h-4 rounded-full bg-gray-200 "
+                  >
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        24 < 50
+                          ? "bg-green-500"
+                          : 24 < 80
+                          ? "bg-yellow-500"
+                          : "bg-red-500"
+                      }`}
+                    />
+                  </Progress>
+                </CardContent>
+              </Card>
             </nav>
           </div>
           <div className="space-y-4">

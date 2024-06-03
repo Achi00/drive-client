@@ -1,79 +1,57 @@
 // pages/dashboard/index.tsx
 import React from "react";
 import { getSession } from "../api/auth/auth";
-import { Button } from "@/components/ui/button";
 import api from "../api/axios";
 import { fileTypes, userTypes, folderTypes } from "@/types";
 import Loading from "@/components/Loading";
 import toast, { Toaster } from "react-hot-toast";
-import {
-  CheckCheck,
-  Download,
-  FileIcon,
-  FolderIcon,
-  FolderOpen,
-  Loader2,
-  Lock,
-  RefreshCcw,
-  SearchIcon,
-  UploadIcon,
-} from "lucide-react";
 import Sidebar from "@/components/Sidebar";
-import Docs from "../../public/google-docs.png";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import Image from "next/image";
-import { formatBytes } from "@/utils/formatBytes";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import ProtectedRoute from "@/utils/ProtectedRoute";
 import router from "next/router";
-import {
-  getIconByFileType,
-  getPreviewByFileType,
-} from "@/utils/getIconsByFileType";
-import useFilePreview from "@/hooks/useFilePreview";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
-import { Input } from "postcss";
-import { redirect } from "next/navigation";
 import Header from "@/components/Header";
 import { NextApiRequest, NextApiResponse } from "next";
-import { formatDate } from "@/utils/formatDate";
 import Empty from "@/components/Empty";
 import FileCard from "@/components/FileCard";
 import FilePreviewModal from "@/components/FilePreviewModal";
+import useFilePreview from "@/hooks/useFilePreview";
+import { FolderOpen } from "lucide-react";
 
 interface DashboardProps {
   user: userTypes;
   initialFiles: fileTypes[];
   initialFolders: folderTypes[];
-  imageUrls: { [key: string]: string };
+  imageUrls: { [key: string]: string | null };
 }
 
 const Dashboard = ({
   user,
   initialFiles,
   initialFolders,
-  imageUrls,
+  imageUrls: initialImageUrls,
 }: DashboardProps) => {
   const [files, setFiles] = React.useState<fileTypes[]>(initialFiles);
   const [folders, setFolders] = React.useState<folderTypes[]>(initialFolders);
+  const [imageUrls, setImageUrls] = React.useState<{
+    [key: string]: string | null;
+  }>(initialImageUrls);
   const [loading, setLoading] = React.useState(false);
 
   const handleFileMoveToTrash = (fileId: string) => {
     setFiles((prevFiles) => prevFiles.filter((file) => file._id !== fileId));
+  };
+
+  const handleUploadSuccess = (
+    newFiles: fileTypes[],
+    newImageUrls: { [key: string]: string | null }
+  ) => {
+    setFiles((prevFiles) => [...prevFiles, ...newFiles]);
+    setImageUrls((prevImageUrls) => ({
+      ...prevImageUrls,
+      ...newImageUrls,
+    }));
+  };
+
+  const handleFolderCreate = (newFolder: folderTypes) => {
+    setFolders((prevFolders) => [...prevFolders, newFolder]);
   };
 
   const {
@@ -99,8 +77,11 @@ const Dashboard = ({
       <Toaster />
       <div className="flex h-screen w-full">
         <div className="flex-1 p-6">
-          <Header />
-          <h1 className="scroll-m-20 text-2xl font-bold  pl-5">Folders</h1>
+          <Header
+            onUploadSuccess={handleUploadSuccess}
+            onFolderCreate={handleFolderCreate}
+          />
+          <h1 className="scroll-m-20 text-2xl font-bold pl-5">Folders</h1>
 
           {folders.length > 0 ? (
             <div
@@ -125,11 +106,12 @@ const Dashboard = ({
           ) : (
             <p>No folder found</p>
           )}
-          <h1 className="scroll-m-20 text-2xl font-bold  pl-5">Files</h1>
+
+          <h1 className="scroll-m-20 text-2xl font-bold pl-5">Files</h1>
           <div>
             {files.length > 0 ? (
               <div
-                className="grid gap-3 p-5 w-full" // Reduce gap size
+                className="grid gap-8 p-5 w-full"
                 style={{
                   gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
                 }}
@@ -197,7 +179,6 @@ export async function getServerSideProps(
     initialFiles = filesResponse.data;
     initialFolders = foldersResponse.data;
 
-    // Fetch signed URLs for image files
     const imageFiles = initialFiles.filter(
       (file: fileTypes) =>
         file.fileType === "image/png" ||
@@ -220,7 +201,7 @@ export async function getServerSideProps(
             `Error fetching signed URL for file ${file._id}:`,
             error
           );
-          return { id: file._id, url: null }; // Return null for URL if there's an error
+          return { id: file._id, url: null };
         }
       })
     );

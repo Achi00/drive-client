@@ -1,10 +1,17 @@
+// components/CreateFolder.tsx
+
 import React, { useState } from "react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "./ui/input";
+import { folderTypes } from "@/types";
 
-const CreateFolder = () => {
+interface CreateFolderProps {
+  onFolderCreate: (newFolder: folderTypes) => void;
+}
+
+const CreateFolder: React.FC<CreateFolderProps> = ({ onFolderCreate }) => {
   const [folderName, setFolderName] = useState("");
   const [message, setMessage] = useState("");
 
@@ -32,6 +39,7 @@ const CreateFolder = () => {
       setMessage("Folder created successfully!");
       setFolderName("");
       console.log("Folder created:", response.data);
+      onFolderCreate(response.data); // Call the prop function to update state
     } catch (error: any) {
       setMessage(
         "Error creating folder: " +

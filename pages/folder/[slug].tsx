@@ -35,10 +35,10 @@ const FolderPage = ({ user, initialFiles, imageUrls }: any) => {
   return (
     <div className="flex h-screen w-full">
       <div className="flex-1 p-6">
-        <Header />
+        {/* <Header /> */}
         {files.length > 0 ? (
           <div
-            className="grid gap-3 p-5 w-full" // Reduce gap size
+            className="grid gap-8 p-5 w-full" // Reduce gap size
             style={{
               gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
             }}

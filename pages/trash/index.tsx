@@ -22,6 +22,10 @@ const Trash: React.FC<TrashProps> = ({
     setFiles((prevFiles) => prevFiles.filter((file) => file._id !== fileId));
   };
 
+  const handleFileRestore = (fileId: string) => {
+    setFiles((prevFiles) => prevFiles.filter((file) => file._id !== fileId));
+  };
+
   return (
     <div className="p-6 px-12">
       <Toaster />
@@ -30,7 +34,7 @@ const Trash: React.FC<TrashProps> = ({
         <Empty message="You have no deleted files" />
       ) : (
         <div
-          className="grid gap-3 p-5 w-full"
+          className="grid gap-7 p-5 w-full"
           style={{
             gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
           }}
@@ -40,7 +44,8 @@ const Trash: React.FC<TrashProps> = ({
               key={file._id}
               file={{ ...file, isPublic: file.isPublic ?? false }}
               imageUrls={imageUrls}
-              onMoveToTrash={handleFileDelete} // Pass the handler here
+              onMoveToTrash={handleFileDelete}
+              onRestore={handleFileRestore}
             />
           ))}
         </div>

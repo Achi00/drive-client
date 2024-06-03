@@ -6,3 +6,9 @@ export function formatBytes(bytes: number, decimals = 2) {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
 }
+
+export function calculatePercentage(used: number, limit: number) {
+  if (limit === 0) return "0%";
+  const percentage = (used / limit) * 100;
+  return percentage.toFixed(2) + "%";
+}
