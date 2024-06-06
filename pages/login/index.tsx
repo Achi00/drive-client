@@ -20,7 +20,7 @@ function LoginForm() {
   const { error } = router.query;
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:8080/auth/google";
+    window.location.href = "https://drive.wordcrafter.io/auth/google";
   };
 
   return (
