@@ -3,6 +3,7 @@ import Link from "next/link";
 import React from "react";
 import Upload from "./Upload";
 import { usePathname } from "next/navigation";
+import { fileTypes } from "@/types";
 
 interface emptyTypes {
   message: string;
@@ -24,7 +25,14 @@ const Empty = ({ message }: emptyTypes) => {
       <div className="flex flex-col gap-2">
         {pathname !== "/trash" && (
           <>
-            <Upload />
+            <Upload
+              onUploadSuccess={function (
+                newFiles: fileTypes[],
+                newImageUrls: { [key: string]: string | null }
+              ): void {
+                throw new Error("Function not implemented.");
+              }}
+            />
             <h1>Or</h1>
           </>
         )}
