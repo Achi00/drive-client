@@ -17,5 +17,5 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "pages/dashboard"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "pages/_middleware.ts"]
 }
