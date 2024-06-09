@@ -91,7 +91,7 @@ const Upload: React.FC<UploadProps> = ({ onUploadSuccess }) => {
       setUploadResults(null);
       setUploading(true);
       const response = await axios.post(
-        "http://localhost:8080/v1/files/upload",
+        "https://drive.wordcrafter.io/v1/files/upload",
         formData,
         {
           onUploadProgress: (progressEvent) => {
@@ -124,7 +124,7 @@ const Upload: React.FC<UploadProps> = ({ onUploadSuccess }) => {
         imageFiles.map(async (file: any) => {
           try {
             const response = await axios.get(
-              `http://localhost:8080/v1/files/download/${file._id}`
+              `https://drive.wordcrafter.io/v1/files/download/${file._id}`
             );
             return { id: file._id, url: response.data.url };
           } catch (error) {

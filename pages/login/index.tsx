@@ -21,6 +21,7 @@ function LoginForm() {
 
   const handleGoogleLogin = () => {
     window.location.href = "https://drive.wordcrafter.io/auth/google";
+    // window.location.href = "http://localhost:8080/auth/google";
   };
 
   return (

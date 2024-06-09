@@ -72,9 +72,12 @@ export const getServerSideProps = async (
   let imageUrls: { [key: string]: string | null } = {};
 
   try {
-    const response = await axios.get("http://localhost:8080/v1/files/trash", {
-      headers: { cookie: context.req.headers.cookie },
-    });
+    const response = await axios.get(
+      "https://drive.wordcrafter.io/v1/files/trash",
+      {
+        headers: { cookie: context.req.headers.cookie },
+      }
+    );
     files = response.data;
 
     const imageFiles = files.filter(
@@ -89,7 +92,7 @@ export const getServerSideProps = async (
       imageFiles.map(async (file: Partial<fileTypes>) => {
         try {
           const response = await axios.get(
-            `http://localhost:8080/v1/files/download/${file._id}`,
+            `https://drive.wordcrafter.io/v1/files/download/${file._id}`,
             {
               headers: { cookie: context.req.headers.cookie },
             }
