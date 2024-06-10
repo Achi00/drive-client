@@ -11,10 +11,12 @@ import {
   Undo,
 } from "lucide-react";
 import Link from "next/link";
+import { getSession } from "./api/auth/auth";
+import { NextApiRequest, NextApiResponse } from "next";
+import { UserProps } from "@/types";
+import User from "@/components/User";
 
-const inter = Inter({ subsets: ["latin"] });
-
-export default function Home() {
+export default function Home({ user }: UserProps) {
   const handleGoogleLogin = () => {
     window.location.href = "https://drive.wordcrafter.io/auth/google";
   };
@@ -27,13 +29,17 @@ export default function Home() {
             <span className="text-lg font-bold text-gray-900">Drive</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Button
-              className="w-full hover:bg-black hover:text-white bg-white text-gray-700 border border-gray-300 flex gap-2 items-center shadow-sm"
-              onClick={handleGoogleLogin}
-            >
-              <GoogleIcon className="h-4 w-4 mr-2" />
-              Login With Google
-            </Button>
+            {user ? (
+              <User user={user} />
+            ) : (
+              <Button
+                className="w-full hover:bg-black hover:text-white bg-white text-gray-700 border border-gray-300 flex gap-2 items-center shadow-sm"
+                onClick={handleGoogleLogin}
+              >
+                <GoogleIcon className="h-4 w-4 mr-2" />
+                Login With Google
+              </Button>
+            )}
           </div>
         </div>
         <div className="flex flex-col items-center space-y-8">
@@ -223,3 +229,24 @@ const GoogleDocsIcon = (className: any) => (
     ></path>
   </svg>
 );
+
+export async function getServerSideProps(
+  context: NextApiRequest & NextApiResponse
+) {
+  const user = await getSession(context);
+
+  if (!user) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {
+      user,
+    },
+  };
+}
