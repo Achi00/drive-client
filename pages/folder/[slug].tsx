@@ -9,8 +9,6 @@ import Header from "@/components/Header";
 import Empty from "@/components/Empty";
 import FileCard from "@/components/FileCard";
 import FilePreviewModal from "@/components/FilePreviewModal";
-import CreateFolder from "@/components/CreateFolder";
-import { Link, Upload } from "lucide-react";
 
 const FolderPage = ({ user, initialFiles, imageUrls, folderDetails }: any) => {
   const [files, setFiles] = React.useState<fileTypes[]>(initialFiles);
