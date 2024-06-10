@@ -5,9 +5,6 @@ import { getSession } from "./pages/api/auth/auth";
 export async function middleware(req: NextRequest) {
   const session = await getSession({ req });
 
-  console.log("Session from middleware:", session);
-  console.log("Cookies from middleware:", req.cookies);
-
   // Define routes that do not require authentication
   const unprotectedRoutes = [
     "/login",

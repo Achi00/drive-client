@@ -48,7 +48,6 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({
   sanitizedContent,
   handleEditInDocs,
 }) => {
-  console.log(selectedFile);
   return (
     <Dialog open={selectedFile !== null} onOpenChange={handleCloseModal}>
       <DialogContent className="sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px]">

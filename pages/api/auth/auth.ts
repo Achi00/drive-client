@@ -5,11 +5,9 @@ export const getSession = async (context?: any) => {
     const response = await api.get("/api/session", {
       headers: context ? { cookie: context.req.headers.cookie } : undefined,
     });
-    console.log("Session data fetched from server:", response.data);
     return response.data.user;
   } catch (error: any) {
     if (error.response && error.response.status === 401) {
-      console.log("User not authenticated:", error.response.data);
       return { error: "You are not authenticated, you can't access this page" };
     }
     console.error("Error fetching session:", error);

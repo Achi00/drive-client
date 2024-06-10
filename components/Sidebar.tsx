@@ -25,7 +25,6 @@ export default function Sidebar({ user }: UserProps) {
   if (!user) {
     return null;
   }
-  console.log(user);
   return (
     <div className="flex h-screen">
       <div className="hidden lg:block lg:w-64 ">

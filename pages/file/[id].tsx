@@ -65,9 +65,6 @@ export const getServerSideProps: GetServerSideProps<FilePageProps> = async (
   const id = context.params?.id as string;
   const cookie = context.req.headers.cookie;
 
-  console.log("Fetching file with ID:", id);
-  console.log("Cookie:", cookie);
-
   let file = null;
   let sanitizedContent = "";
   let error = null;
@@ -79,8 +76,6 @@ export const getServerSideProps: GetServerSideProps<FilePageProps> = async (
       headers: cookie ? { cookie } : undefined,
     });
     file = response.data;
-
-    console.log("File data:", file);
 
     // Fetch the image URL if the file is an image
     if (

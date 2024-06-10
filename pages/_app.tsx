@@ -18,8 +18,6 @@ function MyApp({ Component, pageProps }: MyAppProps) {
   const isProtectedRoute = !unprotectedRoutes.includes(router.pathname);
   const user = pageProps.user; // Destructure user from pageProps
 
-  console.log("User:", user);
-
   return (
     <div className="flex">
       {!user?.error && <Sidebar user={user} />}

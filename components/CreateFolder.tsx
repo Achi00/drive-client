@@ -38,7 +38,6 @@ const CreateFolder: React.FC<CreateFolderProps> = ({ onFolderCreate }) => {
 
       setMessage("Folder created successfully!");
       setFolderName("");
-      console.log("Folder created:", response.data);
       onFolderCreate(response.data); // Call the prop function to update state
     } catch (error: any) {
       setMessage(
