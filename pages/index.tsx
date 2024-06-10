@@ -29,9 +29,7 @@ export default function Home({ user }: UserProps) {
             <span className="text-lg font-bold text-gray-900">Drive</span>
           </Link>
           <div className="flex items-center gap-4">
-            {user ? (
-              <User user={user} />
-            ) : (
+            {!user && (
               <Button
                 className="w-full hover:bg-black hover:text-white bg-white text-gray-700 border border-gray-300 flex gap-2 items-center shadow-sm"
                 onClick={handleGoogleLogin}
