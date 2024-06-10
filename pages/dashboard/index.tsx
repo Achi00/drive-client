@@ -81,9 +81,11 @@ const Dashboard = ({
             onUploadSuccess={handleUploadSuccess}
             onFolderCreate={handleFolderCreate}
           />
-          <h1 className="scroll-m-20 text-2xl font-bold pl-5">Folders</h1>
+          <h1 className="scroll-m-20 text-2xl font-bold pl-5">
+            {folders.length > 0 && "Folders"}
+          </h1>
 
-          {folders.length > 0 ? (
+          {folders.length > 0 && (
             <div
               className="grid gap-3 p-5 w-full"
               style={{
@@ -103,11 +105,11 @@ const Dashboard = ({
                 </div>
               ))}
             </div>
-          ) : (
-            <p>No folder found</p>
           )}
 
-          <h1 className="scroll-m-20 text-2xl font-bold pl-5">Files</h1>
+          <h1 className="scroll-m-20 text-2xl font-bold pl-5">
+            {files.length > 0 && "Files"}
+          </h1>
           <div>
             {files.length > 0 ? (
               <div
