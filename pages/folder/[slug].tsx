@@ -9,8 +9,10 @@ import Header from "@/components/Header";
 import Empty from "@/components/Empty";
 import FileCard from "@/components/FileCard";
 import FilePreviewModal from "@/components/FilePreviewModal";
+import CreateFolder from "@/components/CreateFolder";
+import { Link, Upload } from "lucide-react";
 
-const FolderPage = ({ user, initialFiles, imageUrls }: any) => {
+const FolderPage = ({ user, initialFiles, imageUrls, folderDetails }: any) => {
   const [files, setFiles] = React.useState<fileTypes[]>(initialFiles);
 
   const {
@@ -35,7 +37,11 @@ const FolderPage = ({ user, initialFiles, imageUrls }: any) => {
   return (
     <div className="flex h-screen w-full">
       <div className="flex-1 p-6">
-        {/* <Header /> */}
+        <div className="flex p-4 items-center border-b-2 justify-between mb-6">
+          <h1 className="xl:text-2xl lg:text-2xl md:text-xl sm:text-lg xs:text-sm font-bold text-gray-900 dark:text-gray-100 hidden xl:block lg:block md:block">
+            {folderDetails.name}
+          </h1>
+        </div>
         {files.length > 0 ? (
           <div
             className="grid gap-8 p-5 w-full" // Reduce gap size
@@ -83,8 +89,21 @@ export async function getServerSideProps(context: any) {
 
   let initialFiles = [];
   let imageUrls = {};
+  let folderDetails = null;
 
   try {
+    // Fetch folder details
+    const folderResponse = await api.get(
+      `/v1/files/folders/${context.params.slug}`,
+      {
+        headers: context.req
+          ? { cookie: context.req.headers.cookie }
+          : undefined,
+      }
+    );
+    folderDetails = folderResponse.data;
+
+    // Fetch files inside the folder
     const response = await api.get(
       `/v1/files/folders/${context.params.slug}/files`,
       {
@@ -128,6 +147,7 @@ export async function getServerSideProps(context: any) {
       user,
       initialFiles,
       imageUrls,
+      folderDetails,
     },
   };
 }
