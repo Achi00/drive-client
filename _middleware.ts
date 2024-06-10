@@ -8,6 +8,7 @@ export async function middleware(req: NextRequest) {
   // Define routes that do not require authentication
   const unprotectedRoutes = [
     "/login",
+    "/",
     "/file/[id]",
     "/api/auth/callback",
     "/api/auth/session",

@@ -1,118 +1,225 @@
 import Image from "next/image";
 import { Inter } from "next/font/google";
+import { Button } from "@/components/ui/button";
+import {
+  Cloud,
+  File,
+  FolderOpen,
+  ScanEye,
+  ScreenShare,
+  Server,
+  Undo,
+} from "lucide-react";
+import Link from "next/link";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
+  const handleGoogleLogin = () => {
+    window.location.href = "https://drive.wordcrafter.io/auth/google";
+  };
   return (
-    <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
-    >
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">pages/index.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+      <div className="container max-w-4xl px-4 py-12 space-y-12">
+        <div className="flex justify-between items-center flex-row xs:flex-col">
+          <Link href="#" className="flex items-center gap-2">
+            <Server className="h-6 w-6" />
+            <span className="text-lg font-bold text-gray-900">Drive</span>
+          </Link>
+          <div className="flex items-center gap-4">
+            <Button
+              className="w-full hover:bg-black hover:text-white bg-white text-gray-700 border border-gray-300 flex gap-2 items-center shadow-sm"
+              onClick={handleGoogleLogin}
+            >
+              <GoogleIcon className="h-4 w-4 mr-2" />
+              Login With Google
+            </Button>
+          </div>
+        </div>
+        <div className="flex flex-col items-center space-y-8">
+          <div className="flex flex-col items-center space-y-4">
+            <h1 className="text-4xl font-bold tracking-tighter text-gray-900">
+              Experience the Future of File Management
+            </h1>
+            <p className="max-w-[600px] text-xl text-gray-500 text-center">
+              Introducing our cutting-edge Google Drive Clone, a modern and
+              intuitive file management solution built with the latest web
+              technologies.
+            </p>
+            <div className="flex items-center gap-4">
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center justify-center h-12 px-8 rounded-md bg-gray-900 text-gray-50 text-sm font-medium shadow transition-colors hover:bg-gray-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50"
+              >
+                <Cloud className="h-5 w-5 mr-2" />
+                Go To Dashboard
+              </Link>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="bg-gray-100 p-4 rounded-full">
+                <File className="h-8 w-8 text-gray-500" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900">
+                Seamless File Management
+              </h3>
+              <p className="text-gray-500">
+                Easily upload, download, and organize your files with our
+                intuitive interface.
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="bg-gray-100 p-4 rounded-full">
+                <ScreenShare className="h-8 w-8 text-gray-500" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900">
+                Collaborative Sharing
+              </h3>
+              <p className="text-gray-500">
+                Effortlessly upload your files and set privacy controls. Make
+                files private to restrict access or public to share with anyone
+                via a URL, even if they are not authenticated.
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="bg-gray-100 p-4 rounded-full">
+                <GoogleDocsIcon className="h-8 w-8 text-gray-500" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900">
+                Google Docs File Editing
+              </h3>
+              <p className="text-gray-500">
+                Edit your uploaded text files with Google Docs. Open your text
+                files directly in Google Docs with one button click.
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="bg-gray-100 p-4 rounded-full">
+                <ScanEye className="h-8 w-8 text-gray-500" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900">
+                Secure Authentication and Protected Pages
+              </h3>
+              <p className="text-gray-500">
+                Benefit from secure authentication methods to ensure only
+                authorized users can access protected pages
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="bg-gray-100 p-4 rounded-full">
+                <FolderOpen className="h-8 w-8 text-gray-500" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900">
+                Folder Management
+              </h3>
+              <p className="text-gray-500">
+                Create folders and organize your files with ease. Keep your
+                digital workspace tidy and accessible
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="bg-gray-100 p-4 rounded-full">
+                <Undo className="h-8 w-8 text-gray-500" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900">File Recovery</h3>
+              <p className="text-gray-500">
+                Move unwanted files to the trash where they can be restored or
+                permanently deleted after 30 days
+              </p>
+            </div>
+          </div>
         </div>
       </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Discover and deploy boilerplate example Next.js&nbsp;projects.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    </div>
   );
 }
+
+const GoogleIcon = (className: any) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    x="0px"
+    y="0px"
+    width="20"
+    height="100"
+    viewBox="0 0 48 48"
+  >
+    <path
+      fill="#FFC107"
+      d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"
+    ></path>
+    <path
+      fill="#FF3D00"
+      d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"
+    ></path>
+    <path
+      fill="#4CAF50"
+      d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"
+    ></path>
+    <path
+      fill="#1976D2"
+      d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"
+    ></path>
+  </svg>
+);
+const GoogleDocsIcon = (className: any) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    x="0px"
+    y="0px"
+    width="32"
+    height="32"
+    viewBox="0 0 48 48"
+  >
+    <linearGradient
+      id="pg10I3OeSC0NOv22QZ6aWa_v0YYnU84T2c4_gr1"
+      x1="-209.942"
+      x2="-179.36"
+      y1="-3.055"
+      y2="27.526"
+      gradientTransform="translate(208.979 6.006)"
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop offset="0" stop-color="#55adfd"></stop>
+      <stop offset="1" stop-color="#438ffd"></stop>
+    </linearGradient>
+    <path
+      fill="url(#pg10I3OeSC0NOv22QZ6aWa_v0YYnU84T2c4_gr1)"
+      d="M39.001,13.999v27c0,1.105-0.896,2-2,2h-26	c-1.105,0-2-0.895-2-2v-34c0-1.104,0.895-2,2-2h19l2,7L39.001,13.999z"
+    ></path>
+    <path
+      fill="#fff"
+      fill-rule="evenodd"
+      d="M15.999,18.001v2.999	h17.002v-2.999H15.999z"
+      clip-rule="evenodd"
+    ></path>
+    <path
+      fill="#fff"
+      fill-rule="evenodd"
+      d="M16.001,24.001v2.999	h17.002v-2.999H16.001z"
+      clip-rule="evenodd"
+    ></path>
+    <path
+      fill="#fff"
+      fill-rule="evenodd"
+      d="M15.999,30.001v2.999	h12.001v-2.999H15.999z"
+      clip-rule="evenodd"
+    ></path>
+    <linearGradient
+      id="pg10I3OeSC0NOv22QZ6aWb_v0YYnU84T2c4_gr2"
+      x1="-197.862"
+      x2="-203.384"
+      y1="-4.632"
+      y2=".89"
+      gradientTransform="translate(234.385 12.109)"
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop offset="0" stop-color="#427fdb"></stop>
+      <stop offset="1" stop-color="#0c52bb"></stop>
+    </linearGradient>
+    <path
+      fill="url(#pg10I3OeSC0NOv22QZ6aWb_v0YYnU84T2c4_gr2)"
+      d="M30.001,13.999l0.001-9l8.999,8.999L30.001,13.999z"
+    ></path>
+  </svg>
+);
