@@ -1,6 +1,6 @@
 import React from "react";
 import api from "../api/axios";
-import { fileTypes } from "@/types";
+import { fileTypes, folderTypes } from "@/types";
 
 import useFilePreview from "@/hooks/useFilePreview";
 import { getSession } from "../api/auth/auth";
@@ -10,8 +10,17 @@ import Empty from "@/components/Empty";
 import FileCard from "@/components/FileCard";
 import FilePreviewModal from "@/components/FilePreviewModal";
 
-const FolderPage = ({ user, initialFiles, imageUrls, folderDetails }: any) => {
+const FolderPage = ({
+  user,
+  initialFiles,
+  imageUrls: initialImageUrls,
+  folderDetails,
+}: any) => {
   const [files, setFiles] = React.useState<fileTypes[]>(initialFiles);
+  const [imageUrls, setImageUrls] = React.useState<{
+    [key: string]: string | null;
+  }>(initialImageUrls);
+  const [loading, setLoading] = React.useState(false);
 
   const {
     selectedFile,
@@ -28,6 +37,21 @@ const FolderPage = ({ user, initialFiles, imageUrls, folderDetails }: any) => {
     setFiles((prevFiles) => prevFiles.filter((file) => file._id !== fileId));
   };
 
+  const handleUploadSuccess = (
+    newFiles: fileTypes[],
+    newImageUrls: { [key: string]: string | null }
+  ) => {
+    setFiles((prevFiles) => [...prevFiles, ...newFiles]);
+    setImageUrls((prevImageUrls) => ({
+      ...prevImageUrls,
+      ...newImageUrls,
+    }));
+  };
+
+  const handleFolderCreate = (newFolder: folderTypes) => {
+    return;
+  };
+
   if (previewLoading) {
     return <Loading content="Loading Content" />;
   }
@@ -35,9 +59,13 @@ const FolderPage = ({ user, initialFiles, imageUrls, folderDetails }: any) => {
   return (
     <div className="flex h-screen w-full">
       <div className="flex-1 p-6">
+        <Header
+          onUploadSuccess={handleUploadSuccess}
+          onFolderCreate={handleFolderCreate}
+        />
         <div className="flex p-4 items-center border-b-2 justify-between mb-6">
           <h1 className="xl:text-2xl lg:text-2xl md:text-xl sm:text-lg xs:text-sm font-bold text-gray-900 dark:text-gray-100 hidden xl:block lg:block md:block">
-            {folderDetails.name}
+            {folderDetails?.name}
           </h1>
         </div>
         {files.length > 0 ? (
@@ -90,17 +118,6 @@ export async function getServerSideProps(context: any) {
   let folderDetails = null;
 
   try {
-    // Fetch folder details
-    const folderResponse = await api.get(
-      `/v1/files/folders/${context.params.slug}`,
-      {
-        headers: context.req
-          ? { cookie: context.req.headers.cookie }
-          : undefined,
-      }
-    );
-    folderDetails = folderResponse.data;
-
     // Fetch files inside the folder
     const response = await api.get(
       `/v1/files/folders/${context.params.slug}/files`,
@@ -111,6 +128,17 @@ export async function getServerSideProps(context: any) {
       }
     );
     initialFiles = response.data;
+    // Fetch folder details
+    const folderResponse = await api.get(
+      `/v1/files/folders/${context.params.slug}`,
+      {
+        headers: context.req
+          ? { cookie: context.req.headers.cookie }
+          : undefined,
+      }
+    );
+    folderDetails = folderResponse.data;
+    console.log("folderDetails" + folderDetails);
 
     // Fetch signed URLs for image files
     const imageFiles = initialFiles.filter(
@@ -136,6 +164,8 @@ export async function getServerSideProps(context: any) {
       acc[id] = url;
       return acc;
     }, {});
+    console.log("initialFiles" + initialFiles);
+    console.log("folderDetails" + folderDetails);
   } catch (error) {
     console.error("Error fetching initial data:", error);
   }

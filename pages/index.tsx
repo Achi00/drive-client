@@ -18,16 +18,13 @@ import User from "@/components/User";
 
 export default function Home({ user }: UserProps) {
   const handleGoogleLogin = () => {
-    window.location.href = "https://drive.wordcrafter.io/auth/google";
+    window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google`;
   };
+  console.log(user.error?.length);
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
       <div className="container max-w-4xl px-4 py-12 space-y-12">
         <div className="flex justify-between items-center flex-row xs:flex-col">
-          <Link href="#" className="flex items-center gap-2">
-            <Server className="h-6 w-6" />
-            <span className="text-lg font-bold text-gray-900">Drive</span>
-          </Link>
           <div className="flex items-center gap-4">
             {!user && (
               <Button
@@ -51,13 +48,23 @@ export default function Home({ user }: UserProps) {
               technologies.
             </p>
             <div className="flex items-center gap-4">
-              <Link
-                href="/dashboard"
-                className="inline-flex items-center justify-center h-12 px-8 rounded-md bg-gray-900 text-gray-50 text-sm font-medium shadow transition-colors hover:bg-gray-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50"
-              >
-                <Cloud className="h-5 w-5 mr-2" />
-                Go To Dashboard
-              </Link>
+              {user.error && user.error?.length > 0 ? (
+                <Link
+                  href="/login"
+                  className="flex gap-3 items-center justify-center h-12 px-8 rounded-md bg-gray-900 text-gray-50 text-sm font-medium shadow transition-colors hover:bg-gray-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50"
+                >
+                  <GoogleIcon className="h-5 w-5 mr-2" />
+                  Continue With Google
+                </Link>
+              ) : (
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center justify-center h-12 px-8 rounded-md bg-gray-900 text-gray-50 text-sm font-medium shadow transition-colors hover:bg-gray-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50"
+                >
+                  <Cloud className="h-5 w-5 mr-2" />
+                  Go To Dashboard
+                </Link>
+              )}
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -139,7 +146,7 @@ export default function Home({ user }: UserProps) {
   );
 }
 
-const GoogleIcon = (className: any) => (
+export const GoogleIcon = (className: any) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     x="0px"

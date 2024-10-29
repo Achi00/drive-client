@@ -35,7 +35,7 @@ const uploadHandler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     try {
       const response = await axios.post(
-        "https://drive.wordcrafter.io/v1/files/upload",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/files/upload`,
         formData,
         {
           headers: {

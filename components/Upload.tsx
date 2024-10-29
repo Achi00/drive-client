@@ -1,10 +1,10 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useDropzone, FileRejection } from "react-dropzone";
 import axios from "axios";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Eye, Loader2, Siren, UploadIcon } from "lucide-react";
+import { CircleAlert, Eye, Loader2, Siren, UploadIcon } from "lucide-react";
 import { formatBytes } from "@/utils/formatBytes";
 import toast from "react-hot-toast";
 import { useParams } from "next/navigation";
@@ -91,7 +91,7 @@ const Upload: React.FC<UploadProps> = ({ onUploadSuccess }) => {
       setUploadResults(null);
       setUploading(true);
       const response = await axios.post(
-        "https://drive.wordcrafter.io/v1/files/upload",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/files/upload`,
         formData,
         {
           onUploadProgress: (progressEvent) => {
@@ -124,7 +124,7 @@ const Upload: React.FC<UploadProps> = ({ onUploadSuccess }) => {
         imageFiles.map(async (file: any) => {
           try {
             const response = await axios.get(
-              `https://drive.wordcrafter.io/v1/files/download/${file._id}`
+              `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/files/download/${file._id}`
             );
             return { id: file._id, url: response.data.url };
           } catch (error) {
@@ -187,6 +187,17 @@ const Upload: React.FC<UploadProps> = ({ onUploadSuccess }) => {
               ensure your files are text or image formats. Limit is 5 files
             </AlertDescription>
           </Alert>
+          {isPublic && (
+            <Alert>
+              <CircleAlert className="h-4 w-4" />
+              <AlertTitle>
+                You are making this file publicly available
+              </AlertTitle>
+              <AlertDescription>
+                Anyone with the link will see this file
+              </AlertDescription>
+            </Alert>
+          )}
           <div className="space-y-4">
             <div
               {...getRootProps({

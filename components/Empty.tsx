@@ -33,16 +33,18 @@ const Empty = ({ message }: emptyTypes) => {
                 throw new Error("Function not implemented.");
               }}
             />
-            <h1>Or</h1>
+            {pathname != "/dashboard" && <h1>Or</h1>}
           </>
         )}
-        <Link
-          className="flex gap-2 border border-gray-300 px-2 font-bold h-10 items-center justify-center rounded-md "
-          href="/dashboard"
-        >
-          <LinkIcon size={20} />
-          Go to Homepage
-        </Link>
+        {pathname != "/dashboard" && (
+          <Link
+            className="flex gap-2 border border-gray-300 px-2 font-bold h-10 items-center justify-center rounded-md "
+            href="/"
+          >
+            <LinkIcon size={20} />
+            Go to Homepage
+          </Link>
+        )}
       </div>
     </div>
   );

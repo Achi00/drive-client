@@ -31,7 +31,7 @@ const CreateFolder: React.FC<CreateFolderProps> = ({ onFolderCreate }) => {
 
     try {
       const response = await axios.post(
-        "https://drive.wordcrafter.io/v1/files/folders",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/files/folders`,
         { name: folderName },
         { withCredentials: true }
       );

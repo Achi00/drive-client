@@ -73,7 +73,7 @@ export const getServerSideProps = async (
 
   try {
     const response = await axios.get(
-      "https://drive.wordcrafter.io/v1/files/trash",
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/files/trash`,
       {
         headers: { cookie: context.req.headers.cookie },
       }
@@ -92,7 +92,7 @@ export const getServerSideProps = async (
       imageFiles.map(async (file: Partial<fileTypes>) => {
         try {
           const response = await axios.get(
-            `https://drive.wordcrafter.io/v1/files/download/${file._id}`,
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/files/download/${file._id}`,
             {
               headers: { cookie: context.req.headers.cookie },
             }

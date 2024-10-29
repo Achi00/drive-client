@@ -4,6 +4,7 @@ export interface userTypes {
   email: string;
   totalStorageUsed: number;
   storageLimit: number;
+  error?: string;
 }
 
 export interface UserProps {
