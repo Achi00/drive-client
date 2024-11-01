@@ -160,7 +160,7 @@ export async function getServerSideProps(
     };
   }
 
-  // console.log("cookies: " + JSON.stringify(context.req.headers.cookie));
+  console.log("cookies: " + JSON.stringify(context.req.headers));
 
   let initialFiles = [];
   let initialFolders = [];
