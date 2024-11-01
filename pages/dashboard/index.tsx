@@ -149,6 +149,21 @@ const Dashboard = ({
 export async function getServerSideProps(
   context: NextApiRequest & NextApiResponse
 ) {
+  console.log("Incoming cookies:", context.req.headers.cookie);
+  const headers = {
+    cookie: context.req.headers.cookie,
+    Accept: "application/json",
+    "Content-Type": "application/json",
+    "X-Forwarded-Proto": "https",
+    "X-Forwarded-Host": context.req.headers.host,
+    Origin: "https://wordcrafter.io",
+  };
+  const authResponse = await api.get("/api/session", {
+    headers,
+    withCredentials: true,
+  });
+
+  console.log("Auth response:", authResponse.data);
   const user = await getSession(context);
 
   if (!user) {
