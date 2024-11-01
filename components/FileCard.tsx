@@ -52,7 +52,7 @@ const FileCard: React.FC<FileCardProps> = ({
         )}
       </div>
       <div className="flex justify-between items-center w-full mt-2">
-        <div className="text-sm text-gray-500 dark:text-gray-100 truncate">
+        <div className="text-xs text-gray-500 dark:text-gray-100 truncate">
           {file.deletedAt
             ? `Deleted at: ${new Date(file.deletedAt).toLocaleString()}`
             : `Created: ${

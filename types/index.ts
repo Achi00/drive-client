@@ -26,6 +26,7 @@ export interface fileTypes {
   isPublic: boolean;
   createdAt: string;
   deletedAt?: string;
+  folderName?: string;
   __v: number;
 }
 export interface folderTypes {
@@ -36,6 +37,11 @@ export interface folderTypes {
   type: string;
   createdAt: string;
   __v: number;
+}
+
+export interface FileResponse {
+  folderName: string;
+  files: fileTypes[];
 }
 
 export interface TrashProps {

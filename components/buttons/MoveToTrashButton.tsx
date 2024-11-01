@@ -62,7 +62,7 @@ const MoveToTrashButton: React.FC<{
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" onClick={openDialog}>
+        <Button className="p-1" variant="outline" onClick={openDialog}>
           <Trash2 size={15} />
         </Button>
       </DialogTrigger>

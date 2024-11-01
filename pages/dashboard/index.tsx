@@ -160,6 +160,8 @@ export async function getServerSideProps(
     };
   }
 
+  console.log("cookies: " + JSON.stringify(context.req.headers.cookie));
+
   let initialFiles = [];
   let initialFolders = [];
   let imageUrls = {};
@@ -214,8 +216,8 @@ export async function getServerSideProps(
       }
       return acc;
     }, {});
-  } catch (error) {
-    console.error("Error fetching initial data:", error);
+  } catch (error: any) {
+    console.error("Error fetching initial data:", error.message);
     return {
       props: {
         user,

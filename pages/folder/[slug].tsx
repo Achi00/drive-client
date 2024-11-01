@@ -9,18 +9,19 @@ import Header from "@/components/Header";
 import Empty from "@/components/Empty";
 import FileCard from "@/components/FileCard";
 import FilePreviewModal from "@/components/FilePreviewModal";
+import { FolderOpen } from "lucide-react";
 
 const FolderPage = ({
   user,
   initialFiles,
   imageUrls: initialImageUrls,
   folderDetails,
+  folderName,
 }: any) => {
   const [files, setFiles] = React.useState<fileTypes[]>(initialFiles);
   const [imageUrls, setImageUrls] = React.useState<{
     [key: string]: string | null;
   }>(initialImageUrls);
-  const [loading, setLoading] = React.useState(false);
 
   const {
     selectedFile,
@@ -63,9 +64,10 @@ const FolderPage = ({
           onUploadSuccess={handleUploadSuccess}
           onFolderCreate={handleFolderCreate}
         />
-        <div className="flex p-4 items-center border-b-2 justify-between mb-6">
-          <h1 className="xl:text-2xl lg:text-2xl md:text-xl sm:text-lg xs:text-sm font-bold text-gray-900 dark:text-gray-100 hidden xl:block lg:block md:block">
-            {folderDetails?.name}
+        <div className="flex p-4 items-center justify-between mb-6">
+          <h1 className="items-center gap-3 xl:text-2xl lg:text-2xl md:text-xl sm:text-lg xs:text-sm font-bold text-gray-900 dark:text-gray-100 hidden xl:flex lg:flex md:flex">
+            <FolderOpen className="h-7 w-7" />
+            {folderName}
           </h1>
         </div>
         {files.length > 0 ? (
@@ -115,7 +117,7 @@ export async function getServerSideProps(context: any) {
 
   let initialFiles = [];
   let imageUrls = {};
-  let folderDetails = null;
+  let folderName;
 
   try {
     // Fetch files inside the folder
@@ -127,18 +129,9 @@ export async function getServerSideProps(context: any) {
           : undefined,
       }
     );
-    initialFiles = response.data;
-    // Fetch folder details
-    const folderResponse = await api.get(
-      `/v1/files/folders/${context.params.slug}`,
-      {
-        headers: context.req
-          ? { cookie: context.req.headers.cookie }
-          : undefined,
-      }
-    );
-    folderDetails = folderResponse.data;
-    console.log("folderDetails" + folderDetails);
+    // Separate folderName and files from the response
+    folderName = response.data.folderName;
+    initialFiles = response.data.files;
 
     // Fetch signed URLs for image files
     const imageFiles = initialFiles.filter(
@@ -164,8 +157,6 @@ export async function getServerSideProps(context: any) {
       acc[id] = url;
       return acc;
     }, {});
-    console.log("initialFiles" + initialFiles);
-    console.log("folderDetails" + folderDetails);
   } catch (error) {
     console.error("Error fetching initial data:", error);
   }
@@ -175,7 +166,7 @@ export async function getServerSideProps(context: any) {
       user,
       initialFiles,
       imageUrls,
-      folderDetails,
+      folderName,
     },
   };
 }

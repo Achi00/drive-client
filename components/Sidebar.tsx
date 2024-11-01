@@ -36,7 +36,7 @@ export default function Sidebar({ user }: UserProps) {
                 Drive
               </h2>
             </Link>
-            <nav className="flex-1 space-y-2 pl-4 py-4">
+            <nav className="flex flex-col justify-center space-y-2 py-4">
               <Link
                 className="flex items-center gap-3 rounded-md px-4 py-2 text-gray-700 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-700 sm:px-2 sm:text-sm"
                 href="/dashboard"
