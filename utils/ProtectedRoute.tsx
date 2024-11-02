@@ -30,6 +30,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           setIsLoading(false);
         }
       } catch (error: any) {
+        console.log("Error getting user session:", error);
         router.push(`/login?error=${encodeURIComponent(error.message)}`);
       }
     };
