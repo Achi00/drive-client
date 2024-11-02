@@ -166,7 +166,8 @@ export async function getServerSideProps(
   console.log("Auth response:", authResponse.data);
   const user = await getSession(context);
 
-  console.log("user from getSession " + user);
+  console.log("user from getSession " + JSON.stringify(user, null, 2));
+
   // if (!user) {
   //   return {
   //     redirect: {
