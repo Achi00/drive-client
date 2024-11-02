@@ -9,6 +9,7 @@ export async function middleware(req: NextRequest) {
   const unprotectedRoutes = [
     "/login",
     "/",
+    // "/dashboard",
     "/file/[id]",
     "/api/auth/callback",
     "/api/auth/session",

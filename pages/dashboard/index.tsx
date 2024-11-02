@@ -166,16 +166,15 @@ export async function getServerSideProps(
   console.log("Auth response:", authResponse.data);
   const user = await getSession(context);
 
-  if (!user) {
-    return {
-      redirect: {
-        destination: "/login",
-        permanent: false,
-      },
-    };
-  }
-
-  console.log("cookies: " + JSON.stringify(context.req.headers));
+  console.log("user from getSession " + user);
+  // if (!user) {
+  //   return {
+  //     redirect: {
+  //       destination: "/login",
+  //       permanent: false,
+  //     },
+  //   };
+  // }
 
   let initialFiles = [];
   let initialFolders = [];

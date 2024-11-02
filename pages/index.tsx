@@ -1,5 +1,3 @@
-import Image from "next/image";
-import { Inter } from "next/font/google";
 import { Button } from "@/components/ui/button";
 import {
   Cloud,
@@ -20,6 +18,7 @@ export default function Home({ user }: UserProps) {
   const handleGoogleLogin = () => {
     window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google`;
   };
+  console.log(user);
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
       <div className="container max-w-4xl px-4 py-12 space-y-12">
