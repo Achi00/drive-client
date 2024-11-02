@@ -23,13 +23,14 @@ function MyApp({ Component, pageProps }: MyAppProps) {
       {!user?.error && <Sidebar user={user} />}
       {/* Render Sidebar only if user exists */}
       <main className="flex-grow">
-        {isProtectedRoute ? (
+        {/* {isProtectedRoute ? (
           <ProtectedRoute>
             <Component {...pageProps} />
           </ProtectedRoute>
         ) : (
           <Component {...pageProps} />
-        )}
+        )} */}
+        <Component {...pageProps} />
       </main>
     </div>
   );
