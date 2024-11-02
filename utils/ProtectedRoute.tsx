@@ -15,7 +15,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const checkAuth = async () => {
       try {
         const userSession = await getSession();
+        console.log(
+          "getting user session from protexted route " +
+            JSON.stringify(userSession)
+        );
+
         if (!userSession || userSession.error) {
+          console.log(
+            "you will be redirected because userSession not exists ot there is error"
+          );
           setIsLoading(false);
           router.push("/login?error=Not%20Authenticated");
         } else {
