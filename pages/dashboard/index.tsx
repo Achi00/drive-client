@@ -65,7 +65,7 @@ const Dashboard = ({
     handleEditInDocs,
   } = useFilePreview();
 
-  if (!user || loading) {
+  if (loading) {
     return <Loading />;
   }
   if (previewLoading) {
@@ -150,32 +150,26 @@ export async function getServerSideProps(
   context: NextApiRequest & NextApiResponse
 ) {
   console.log("Incoming cookies:", context.req.headers.cookie);
-  const headers = {
-    cookie: context.req.headers.cookie,
-    Accept: "application/json",
-    "Content-Type": "application/json",
-    "X-Forwarded-Proto": "https",
-    "X-Forwarded-Host": context.req.headers.host,
-    Origin: "https://wordcrafter.io",
-  };
-  const authResponse = await api.get("/api/session", {
-    headers,
-    withCredentials: true,
-  });
 
-  console.log("Auth response:", authResponse.data);
-  const user = await getSession(context);
+  let user;
+  try {
+    user = await getSession(context);
+    console.log("User from getSession:", JSON.stringify(user, null, 2));
+  } catch (error: any) {
+    user = null;
+    console.error("Error retrieving session:", error.message);
+  }
 
-  console.log("user from getSession " + JSON.stringify(user, null, 2));
-
-  // if (!user) {
-  //   return {
-  //     redirect: {
-  //       destination: "/login",
-  //       permanent: false,
-  //     },
-  //   };
-  // }
+  // Redirect to login if user session is missing
+  if (user.error == "You are not authenticated, you can't access this page") {
+    console.log("Redirecting to login...");
+    return {
+      redirect: {
+        destination: "/login?error=Not%20Authenticated",
+        permanent: false,
+      },
+    };
+  }
 
   let initialFiles = [];
   let initialFolders = [];

@@ -31,7 +31,6 @@ function LoginForm() {
 
   const handleGoogleLogin = () => {
     window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google`;
-    // window.location.href = "http://localhost:8080/auth/google";
   };
 
   return (
@@ -70,7 +69,7 @@ function LoginForm() {
       </div>
       <div className="xl:w-1/2 lg:w-1/2 w-full flex items-center justify-center p-12">
         <div className="w-full max-w-md flex flex-col gap-10 items-center justify-center">
-          <div className="p-5">
+          <div className="p-5 w-2/3">
             {error && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />

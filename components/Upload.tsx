@@ -3,7 +3,12 @@ import { useDropzone, FileRejection } from "react-dropzone";
 import axios from "axios";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { CircleAlert, Eye, Loader2, Siren, UploadIcon } from "lucide-react";
 import { formatBytes } from "@/utils/formatBytes";
 import toast from "react-hot-toast";
@@ -171,6 +176,7 @@ const Upload: React.FC<UploadProps> = ({ onUploadSuccess }) => {
           Upload
         </Button>
       </DialogTrigger>
+      <DialogTitle>Upload profile</DialogTitle>
       <DialogContent className="sm:max-w-1/2">
         <div className="mx-auto max-w-md space-y-6">
           <div className="space-y-2 text-center">

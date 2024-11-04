@@ -32,7 +32,7 @@ const FileCard: React.FC<FileCardProps> = ({
     <div
       key={file._id}
       onClick={() => handleFileClick && handleFileClick(file)}
-      className="bg-white dark:bg-gray-800 border rounded-lg shadow-lg p-4 flex flex-col h-72 xl:w-60 lg:w-56 md:w-52 sm:w-52 xs:w-36 items-center justify-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors aspect-w-1 aspect-h-1 relative"
+      className="bg-white dark:bg-gray-800 border rounded-lg shadow-lg p-4 flex flex-col h-72 xl:w-58 lg:w-56 md:w-52 sm:w-52 xs:w-36 items-center justify-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors aspect-w-1 aspect-h-1 relative"
     >
       <div className="flex items-center justify-between w-full gap-1 mb-2">
         <div className="flex items-center gap-1">

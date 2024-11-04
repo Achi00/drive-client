@@ -189,8 +189,8 @@ const GoogleDocsIcon = (className: any) => (
       gradientTransform="translate(208.979 6.006)"
       gradientUnits="userSpaceOnUse"
     >
-      <stop offset="0" stop-color="#55adfd"></stop>
-      <stop offset="1" stop-color="#438ffd"></stop>
+      <stop offset="0" stopColor="#55adfd"></stop>
+      <stop offset="1" stopColor="#438ffd"></stop>
     </linearGradient>
     <path
       fill="url(#pg10I3OeSC0NOv22QZ6aWa_v0YYnU84T2c4_gr1)"
@@ -223,8 +223,8 @@ const GoogleDocsIcon = (className: any) => (
       gradientTransform="translate(234.385 12.109)"
       gradientUnits="userSpaceOnUse"
     >
-      <stop offset="0" stop-color="#427fdb"></stop>
-      <stop offset="1" stop-color="#0c52bb"></stop>
+      <stop offset="0" stopColor="#427fdb"></stop>
+      <stop offset="1" stopColor="#0c52bb"></stop>
     </linearGradient>
     <path
       fill="url(#pg10I3OeSC0NOv22QZ6aWb_v0YYnU84T2c4_gr2)"
