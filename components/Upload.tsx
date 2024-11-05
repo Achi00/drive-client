@@ -176,7 +176,6 @@ const Upload: React.FC<UploadProps> = ({ onUploadSuccess }) => {
           Upload
         </Button>
       </DialogTrigger>
-      <DialogTitle>Upload profile</DialogTitle>
       <DialogContent className="sm:max-w-1/2">
         <div className="mx-auto max-w-md space-y-6">
           <div className="space-y-2 text-center">
